@@ -1,0 +1,47 @@
+From ed31bf45a6c93c68fba5326f824f0eb07306c284 Mon Sep 17 00:00:00 2001
+From: "Patrick D. Hunt" <phunt@apache.org>
+Date: Fri, 11 Oct 2013 19:19:18 +0000
+Subject: [PATCH 58/94] ZOOKEEPER-1610. Some classes are using == or != to
+ compare Long/String objects instead of .equals()
+ (Edward Ribeiro via phunt)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1531397 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt                                        |    3 +++
+ .../zookeeper/client/ZooKeeperSaslClient.java      |    4 ++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index be584fe..285bd71 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -78,6 +78,9 @@ BUGFIXES:
+   
+   ZOOKEEPER-1624. PrepRequestProcessor abort multi-operation incorrectly. (thawan via camille)
+ 
++  ZOOKEEPER-1610. Some classes are using == or != to compare
++  Long/String objects instead of .equals() (Edward Ribeiro via phunt)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/main/org/apache/zookeeper/client/ZooKeeperSaslClient.java b/src/java/main/org/apache/zookeeper/client/ZooKeeperSaslClient.java
+index b07ae6c..c7abfc8 100644
+--- a/src/java/main/org/apache/zookeeper/client/ZooKeeperSaslClient.java
++++ b/src/java/main/org/apache/zookeeper/client/ZooKeeperSaslClient.java
+@@ -297,10 +297,10 @@ public class ZooKeeperSaslClient {
+         if (saslClient.isComplete()) {
+             // GSSAPI: server sends a final packet after authentication succeeds
+             // or fails.
+-            if ((serverToken == null) && (saslClient.getMechanismName() == "GSSAPI"))
++            if ((serverToken == null) && (saslClient.getMechanismName().equals("GSSAPI")))
+                 gotLastPacket = true;
+             // non-GSSAPI: no final packet from server.
+-            if (saslClient.getMechanismName() != "GSSAPI") {
++            if (!saslClient.getMechanismName().equals("GSSAPI")) {
+                 gotLastPacket = true;
+             }
+             // SASL authentication is completed, successfully or not:
+-- 
+1.7.9.5
+

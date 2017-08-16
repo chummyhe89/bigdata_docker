@@ -1,0 +1,27 @@
+From dec919723aaa61dd962126aab2420b48f1b1167d Mon Sep 17 00:00:00 2001
+From: mthakkar <mthakkar@cloudera.com>
+Date: Tue, 10 Mar 2015 23:40:41 -0700
+Subject: [PATCH 85/94]  Fix Clover classname issue with new version of clover
+
+---
+ build.xml |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/build.xml b/build.xml
+index 1c3df03..d3dcceb 100644
+--- a/build.xml
++++ b/build.xml
+@@ -138,8 +138,8 @@
+     <property name="ivysettings.xml" value="${basedir}/ivysettings.xml"/>
+ 
+     <available property="clover.present"
+-               classname="com.cenqua.clover.CloverInstr"
+-               classpath="${clover.home}/lib/clover.jar"/>
++               file="${clover.home}/lib/clover.jar"
++               classpath="${clover.home}/lib"/>
+ 
+     <available file="${c.src.dir}/Makefile" property="Makefile.present"/>
+ 
+-- 
+1.7.9.5
+

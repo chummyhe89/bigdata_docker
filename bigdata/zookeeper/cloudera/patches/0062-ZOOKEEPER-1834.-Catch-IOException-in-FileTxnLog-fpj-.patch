@@ -1,0 +1,45 @@
+From 3397b3d933f91732463238dfa68a6279e5a973ad Mon Sep 17 00:00:00 2001
+From: Michi Mutsuzaki <michim@apache.org>
+Date: Wed, 11 Dec 2013 00:12:53 +0000
+Subject: [PATCH 62/94] ZOOKEEPER-1834. Catch IOException in FileTxnLog (fpj
+ via michim)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1550006 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                                        |    2 ++
+ .../zookeeper/server/persistence/FileTxnLog.java   |    3 +++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 8d97696..0468aa7 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -90,6 +90,8 @@ BUGFIXES:
+   ZOOKEEPER-1459. Standalone ZooKeeperServer is not closing 
+   the transaction log files on shutdown (Rakesh R via fpj)
+ 
++  ZOOKEEPER-1834. Catch IOException in FileTxnLog (fpj via michim)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/main/org/apache/zookeeper/server/persistence/FileTxnLog.java b/src/java/main/org/apache/zookeeper/server/persistence/FileTxnLog.java
+index 64f3af7..55cdc8d 100644
+--- a/src/java/main/org/apache/zookeeper/server/persistence/FileTxnLog.java
++++ b/src/java/main/org/apache/zookeeper/server/persistence/FileTxnLog.java
+@@ -627,6 +627,9 @@ public class FileTxnLog implements TxnLog {
+                 }
+                 // if we went to the next log file, we should call next() again
+                 return next();
++            } catch (IOException e) {
++                inputStream.close();
++                throw e;
+             }
+             return true;
+         }
+-- 
+1.7.9.5
+

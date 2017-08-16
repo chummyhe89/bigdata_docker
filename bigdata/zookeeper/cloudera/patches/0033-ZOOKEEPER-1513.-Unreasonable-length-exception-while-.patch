@@ -1,0 +1,351 @@
+From 8c7a742490dcc7c78cfbfacaf84cd672694d1b3f Mon Sep 17 00:00:00 2001
+From: "Patrick D. Hunt" <phunt@apache.org>
+Date: Wed, 12 Dec 2012 06:51:38 +0000
+Subject: [PATCH 33/94] ZOOKEEPER-1513. "Unreasonable length" exception while
+ starting a server (Skye W-M via phunt)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1420540 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                                        |    5 +
+ build.xml                                          |    6 +
+ .../main/org/apache/jute/BinaryInputArchive.java   |   17 +--
+ .../test/data/buffersize/create/version-2/log.1    |  Bin 0 -> 51216 bytes
+ .../data/buffersize/create/version-2/snapshot.0    |  Bin 0 -> 296 bytes
+ src/java/test/data/buffersize/set/version-2/log.1  |  Bin 0 -> 51216 bytes
+ .../test/data/buffersize/set/version-2/snapshot.0  |  Bin 0 -> 296 bytes
+ .../test/data/buffersize/snapshot/version-2/log.1  |  Bin 0 -> 51216 bytes
+ .../data/buffersize/snapshot/version-2/snapshot.0  |  Bin 0 -> 296 bytes
+ .../data/buffersize/snapshot/version-2/snapshot.2  |  Bin 0 -> 5429 bytes
+ .../org/apache/zookeeper/test/BufferSizeTest.java  |  132 ++++++++++++++++++++
+ 11 files changed, 149 insertions(+), 11 deletions(-)
+ create mode 100644 src/java/test/data/buffersize/create/version-2/log.1
+ create mode 100644 src/java/test/data/buffersize/create/version-2/snapshot.0
+ create mode 100644 src/java/test/data/buffersize/set/version-2/log.1
+ create mode 100644 src/java/test/data/buffersize/set/version-2/snapshot.0
+ create mode 100644 src/java/test/data/buffersize/snapshot/version-2/log.1
+ create mode 100644 src/java/test/data/buffersize/snapshot/version-2/snapshot.0
+ create mode 100644 src/java/test/data/buffersize/snapshot/version-2/snapshot.2
+ create mode 100644 src/java/test/org/apache/zookeeper/test/BufferSizeTest.java
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index ce7133b..fdb0ad8 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -7,6 +7,11 @@ BUGFIXES:
+   ZOOKEEPER-1596. Zab1_0Test should ensure that the file is closed
+   (Enis Soztutar via phunt)
+ 
++  ZOOKEEPER-1513. "Unreasonable length" exception while starting a
++  server (Skye W-M via phunt)
++
++IMPROVEMENTS:
++
+ 
+ Release 3.4.5 - 2012-09-30
+ 
+diff --git a/build.xml b/build.xml
+index f5ec26c..6f395e5 100644
+--- a/build.xml
++++ b/build.xml
+@@ -95,6 +95,7 @@
+     <property name="test.data.dir" value="${test.java.build.dir}/data" />
+     <property name="test.data.upgrade.dir" value="${test.data.dir}/upgrade" />
+     <property name="test.data.invalid.dir" value="${test.data.dir}/invalidsnap" />
++    <property name="test.data.buffersize.dir" value="${test.data.dir}/buffersize" />
+     <property name="test.cppunit.dir" value="${test.java.build.dir}/test-cppunit"/>
+     <property name="test.tmp.dir" value="${test.java.build.dir}/tmp" />
+     <property name="test.output" value="no" />
+@@ -1160,6 +1161,7 @@
+         <delete dir="${test.tmp.dir}" />
+         <delete dir="${test.data.upgrade.dir}" />
+         <delete dir="${test.data.invalid.dir}" />
++        <delete dir="${test.data.buffersize.dir}" />
+         <delete dir="${test.data.dir}" />
+         <mkdir dir="${test.log.dir}" />
+         <mkdir dir="${test.tmp.dir}" />
+@@ -1172,6 +1174,10 @@
+         <copy todir="${test.data.invalid.dir}">
+             <fileset dir="${basedir}/src/java/test/data/invalidsnap"/>
+         </copy>
++        <mkdir dir="${test.data.buffersize.dir}" />
++        <copy todir="${test.data.buffersize.dir}">
++            <fileset dir="${basedir}/src/java/test/data/buffersize"/>
++        </copy>
+        
+     </target>
+ 
+diff --git a/src/java/main/org/apache/jute/BinaryInputArchive.java b/src/java/main/org/apache/jute/BinaryInputArchive.java
+index 8f329eb..6b2cb46 100644
+--- a/src/java/main/org/apache/jute/BinaryInputArchive.java
++++ b/src/java/main/org/apache/jute/BinaryInputArchive.java
+@@ -83,20 +83,15 @@ public class BinaryInputArchive implements InputArchive {
+     	return new String(b, "UTF8");
+     }
+     
+-    static public final int maxBuffer = determineMaxBuffer();
+-    private static int determineMaxBuffer() {
+-        String maxBufferString = System.getProperty("jute.maxbuffer");
+-        try {
+-            return Integer.parseInt(maxBufferString);
+-        } catch(Exception e) {
+-            return 0xfffff;
+-        }
+-        
+-    }
++    static public final int maxBuffer = Integer.getInteger("jute.maxbuffer", 0xfffff);
++
+     public byte[] readBuffer(String tag) throws IOException {
+         int len = readInt(tag);
+         if (len == -1) return null;
+-        if (len < 0 || len > maxBuffer) {
++        // Since this is a rough sanity check, add some padding to maxBuffer to
++        // make up for extra fields, etc. (otherwise e.g. clients may be able to
++        // write buffers larger than we can read from disk!)
++        if (len < 0 || len > maxBuffer + 1024) {
+             throw new IOException("Unreasonable length = " + len);
+         }
+         byte[] arr = new byte[len];
+diff --git a/src/java/test/data/buffersize/create/version-2/log.1 b/src/java/test/data/buffersize/create/version-2/log.1
+new file mode 100644
+index 0000000000000000000000000000000000000000..4f05bc1cb458cee8d7b23e1e4a9118125e6d01f5
+GIT binary patch
+literal 51216
+zcmeI$F-ikb5C-5ELxflfl3EKvD+3k*Ez?-&32a133PE;*20{)XSXg)w%N)Q`dmHbe
+zovicL7;*s9eZwxi8Q#3&EC2J;vy+t4TKtQ;e{J`o*=-z;u8Z%*I3F7E#q{~Ds;aM)
+z_BQ)@dbt1en9|nA(n4IUD<00%m+k2CY@<6K-i<GcaxjdIhXX}`009C72oNAZfB*pk
+z1PBlyK!Cu?1?K5oPU%{c^7dvBhxN;1S{4!0MRHfid{;;9PBc49G2dTq*!+$8-e-{u
+ze%6=snj%1e009C72oNAZfB*pk1PBlyK!5-N0t5&UAV7cs0RjXF5FkK+009C72oNAZ
+zfB*pk1PBlyK!5-N0t5&UAV7cs0RjXF5FkK+009C72oNAZfB*pk1PBlyK!5-N0t5&U
+zAV7cs0RjXF5FkK+009C72oNAZfB*pk1PBlyK!5-N0t5&UAV7cs0RjXF5FkK+009C7
+z2oNAZfB*pk1PBlyK!5-N0t5&UAV7cs0RjXF5FkK+009C72oNAZfB*pk1PBly@XrE2
+D8B?jk
+
+literal 0
+HcmV?d00001
+
+diff --git a/src/java/test/data/buffersize/create/version-2/snapshot.0 b/src/java/test/data/buffersize/create/version-2/snapshot.0
+new file mode 100644
+index 0000000000000000000000000000000000000000..49b512e65afe574f6f0631377419d7ea0df8264e
+GIT binary patch
+literal 296
+zcma#@4)$YUU|{+W1wb|mz$K2Nh%kpszbZdJJ2kZ+wFsn`N~Q`ROw}(e%`Zu$qS=i4
+OAj4J*XkP+SjQRlar7gMu
+
+literal 0
+HcmV?d00001
+
+diff --git a/src/java/test/data/buffersize/set/version-2/log.1 b/src/java/test/data/buffersize/set/version-2/log.1
+new file mode 100644
+index 0000000000000000000000000000000000000000..8586f16bf7341fcfb8033a3d4629fc86880aba13
+GIT binary patch
+literal 51216
+zcmeI$JxT*X6ae6fKS2dSNFz2{2zIfzu+YLnyI2V#LSiMGpaIDN1Peh=;1Rrl;0?Ti
+zot=%9w(FbC5AgtY-(!b2^Je$4eC0biJUU1z&BU6-?doDH4x6=|UhnC7QqG%NJW+l5
+zEX(pIrLC2{T;1JY{)*I^`XFAcA{yuF+hd$^ZE3sTx$d78-F7Eenxpc1<oTQK)nz+2
+z_48uTE%JS;RsE04`+7=^*Qx&FAD$idf4|5LV*TmgxN8am1PBlyK!5-N0t5&UAV7cs
+z0Rja6U0^cGJAGIf#9?D<lounsD&~fxypOe*Eq+&XztM$6fB*pk1PBlyK!5-N0t5&U
+zAV7cs0RjXF5FkK+009C72oNAZfB*pk1PBlyK!5-N0t5&UAV7cs0RjXF5FkK+009C7
+z2oNAZfB*pk1PBlyK!5-N0t5&UAV7cs0RjXF5FkK+009C72oNAZfB*pk1PBlyK!5-N
+z0t5&UAV7cs0RjXF5FkK+009C72oNAZfB*pk1PBlyK!5-N0t5&UAV7cs0RjXF5FkK+
+h009C72oNAZfB*pk1PBlyK!5-N0t5&UAV6R&@C%HJwJ-nx
+
+literal 0
+HcmV?d00001
+
+diff --git a/src/java/test/data/buffersize/set/version-2/snapshot.0 b/src/java/test/data/buffersize/set/version-2/snapshot.0
+new file mode 100644
+index 0000000000000000000000000000000000000000..49b512e65afe574f6f0631377419d7ea0df8264e
+GIT binary patch
+literal 296
+zcma#@4)$YUU|{+W1wb|mz$K2Nh%kpszbZdJJ2kZ+wFsn`N~Q`ROw}(e%`Zu$qS=i4
+OAj4J*XkP+SjQRlar7gMu
+
+literal 0
+HcmV?d00001
+
+diff --git a/src/java/test/data/buffersize/snapshot/version-2/log.1 b/src/java/test/data/buffersize/snapshot/version-2/log.1
+new file mode 100644
+index 0000000000000000000000000000000000000000..2f145a68386f71a3472314446dec06a48a4757bf
+GIT binary patch
+literal 51216
+zcmeI$F-ikb5C-6vh#{mBEG-Nqpq2I(7HLxG34|a*(#fvGfY?}DdIN8fHbpuwpy)Yb
+zyO~{*kOL&$H|(-+hBsS$<$rf`+fOOg<K5KTd2<>~w|4dPbu!<K%R?=mn07vkqWDkg
+z?5I~x`_~_TDINcAEyTsD;>Xp(cXZ{fbvYS5PwumPIEsz;3q^nc0RjXF5FkK+009C7
+z2oNAZfWY1bR_WYnd=Fpp@#8QKjfd<t&myLa<gSYO2D9c*H0`aJZ=D++tYW@J<bsRp
+za=E4m5FkK+009C72oNAZfB*pk1PBlyK!5-N0t5&UAV7cs0RjXF5FkK+009C72oNAZ
+zfB*pk1PBlyK!5-N0t5&UAV7cs0RjXF5FkK+009C72oNAZfB*pk1PBlyK!5-N0t5&U
+zAV7cs0RjXF5FkK+009C72oNAZfB*pk1PBlyK!5-N0t5&UAV7cs0RjXF5FkK+009C7
+z2oNAZfB*pk1PBlyK!5-N0t5&UAV7cs0RjXF5FkK+009C72oNAZfB*pk1PJU{U<n$p
+Bs^|a!
+
+literal 0
+HcmV?d00001
+
+diff --git a/src/java/test/data/buffersize/snapshot/version-2/snapshot.0 b/src/java/test/data/buffersize/snapshot/version-2/snapshot.0
+new file mode 100644
+index 0000000000000000000000000000000000000000..49b512e65afe574f6f0631377419d7ea0df8264e
+GIT binary patch
+literal 296
+zcma#@4)$YUU|{+W1wb|mz$K2Nh%kpszbZdJJ2kZ+wFsn`N~Q`ROw}(e%`Zu$qS=i4
+OAj4J*XkP+SjQRlar7gMu
+
+literal 0
+HcmV?d00001
+
+diff --git a/src/java/test/data/buffersize/snapshot/version-2/snapshot.2 b/src/java/test/data/buffersize/snapshot/version-2/snapshot.2
+new file mode 100644
+index 0000000000000000000000000000000000000000..59dfa701a83d7d78542a82d617449c41c4e58070
+GIT binary patch
+literal 5429
+zcma#@4)$YUU|{+W1wb|<qgBBv>BB%4gSr5S4`KlUhz4PKAZ9JkFUm;)GT0LHD)aMF
+zfh;gUG6p7ukA@kItcD55;nFWjEiQ@A%TEECEZm_t3PwX<Gz3ONU^E0qLtr!nMnhmU
+z1V%$(Gz3ONU^E0qLtr!nMnhmU1V%$(Gz4fK0?=VP*r*+7qz(jtG-$|B`8tAzNMIo$
+yqkC2P`Pr$d1*t_K6(o)sVlfmfB%lvBRll$_za){0W;5!844eIMe-w~n)CT})3c?=%
+
+literal 0
+HcmV?d00001
+
+diff --git a/src/java/test/org/apache/zookeeper/test/BufferSizeTest.java b/src/java/test/org/apache/zookeeper/test/BufferSizeTest.java
+new file mode 100644
+index 0000000..6d74e54
+--- /dev/null
++++ b/src/java/test/org/apache/zookeeper/test/BufferSizeTest.java
+@@ -0,0 +1,132 @@
++/**
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package org.apache.zookeeper.test;
++
++import static org.junit.Assert.assertEquals;
++import static org.junit.Assert.fail;
++
++import java.io.File;
++import java.io.IOException;
++
++import org.apache.jute.BinaryInputArchive;
++import org.apache.zookeeper.CreateMode;
++import org.apache.zookeeper.KeeperException;
++import org.apache.zookeeper.ZooDefs.Ids;
++import org.apache.zookeeper.ZooKeeper;
++import org.junit.Before;
++import org.junit.Test;
++
++public class BufferSizeTest extends ClientBase {
++    public static final int TEST_MAXBUFFER = 100;
++    private static final File TEST_DATA = new File(
++            System.getProperty("test.data.dir", "build/test/data"),
++            "buffersize");
++    
++    private ZooKeeper zk;
++
++    @Before
++    public void setMaxBuffer() throws IOException, InterruptedException {
++        System.setProperty("jute.maxbuffer", "" + TEST_MAXBUFFER);
++        assertEquals("Can't set jute.maxbuffer!", TEST_MAXBUFFER, BinaryInputArchive.maxBuffer);
++        zk = createClient();
++    }
++    
++    @Test
++    public void testCreatesReqs() throws Exception {
++        testRequests(new ClientOp() {
++            @Override
++            public void execute(byte[] data) throws Exception {
++                zk.create("/create_test", data, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
++            }
++        });
++    }
++    
++    @Test
++    public void testSetReqs() throws Exception {
++        final String path = "/set_test";
++        zk.create(path, new byte[1], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
++        testRequests(new ClientOp() {
++            @Override
++            public void execute(byte[] data) throws Exception {
++                zk.setData(path, data, -1);
++            }
++        });
++    }
++    
++    /** Issues requests containing data smaller, equal, and greater than TEST_MAXBUFFER. */
++    private void testRequests(ClientOp clientOp) throws Exception {
++        clientOp.execute(new byte[TEST_MAXBUFFER - 60]);
++        try {
++            // This should fail since the buffer size > the data size due to extra fields
++            clientOp.execute(new byte[TEST_MAXBUFFER]);
++            fail("Request exceeding jute.maxbuffer succeeded!");
++        } catch (KeeperException.ConnectionLossException e) {}
++        try {
++            clientOp.execute(new byte[TEST_MAXBUFFER + 10]);
++            fail("Request exceeding jute.maxbuffer succeeded!");
++        } catch (KeeperException.ConnectionLossException e) {}
++    }
++
++    private interface ClientOp {
++        void execute(byte[] data) throws Exception;
++    }
++
++    @Test
++    public void testStartup() throws Exception {
++        final String path = "/test_node";
++        zk.create(path, new byte[TEST_MAXBUFFER - 60], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
++        zk.setData(path, new byte[TEST_MAXBUFFER - 50], -1);
++
++        stopServer();
++        startServer();
++    }
++    
++    @Test
++    public void testStartupFailureCreate() throws Exception {
++        // Empty snapshot and logfile containing a 5000-byte create
++        testStartupFailure(new File(TEST_DATA, "create"),
++                "Server started despite create exceeding jute.maxbuffer!");
++    }
++    
++    @Test
++    public void testStartupFailureSet() throws Exception {
++        // Empty snapshot and logfile containing a 1-byte create and 5000-byte set
++        testStartupFailure(new File(TEST_DATA, "set"),
++                "Server started despite set exceeding jute.maxbuffer!");
++    }
++    
++    @Test
++    public void testStartupFailureSnapshot() throws Exception {
++        // Snapshot containing 5000-byte znode and logfile containing create txn
++        testStartupFailure(new File(TEST_DATA, "snapshot"),
++                "Server started despite znode exceeding jute.maxbuffer!");
++    }
++    
++    private void testStartupFailure(File testDir, String failureMsg) throws Exception {
++        stopServer();
++        // Point server at testDir
++        tmpDir = testDir;
++        try {
++            startServer();
++            fail(failureMsg);
++        } catch (IOException e) {
++            LOG.info("Successfully caught IOException: " + e);
++        }
++    }
++}
+-- 
+1.7.9.5
+

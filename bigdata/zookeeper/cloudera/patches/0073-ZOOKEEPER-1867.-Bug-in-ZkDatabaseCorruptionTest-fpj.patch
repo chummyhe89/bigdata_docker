@@ -1,0 +1,54 @@
+From d2af9299b72a13e6321b823799326c0ec5f4162c Mon Sep 17 00:00:00 2001
+From: Flavio Paiva Junqueira <fpj@apache.org>
+Date: Mon, 27 Jan 2014 13:38:03 +0000
+Subject: [PATCH 73/94] ZOOKEEPER-1867. Bug in ZkDatabaseCorruptionTest (fpj)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1561673 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt                                        |    2 ++
+ .../zookeeper/test/ZkDatabaseCorruptionTest.java   |   16 ++++++++++------
+ 2 files changed, 12 insertions(+), 6 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index dba6d62..b111cf7 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -119,6 +119,8 @@ BUGFIXES:
+   ZOOKEEPER-1858. JMX checks - potential race conditions while stopping
+   and starting server (Rakesh R via fpj)
+ 
++  ZOOKEEPER-1867. Bug in ZkDatabaseCorruptionTest (fpj)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/test/org/apache/zookeeper/test/ZkDatabaseCorruptionTest.java b/src/java/test/org/apache/zookeeper/test/ZkDatabaseCorruptionTest.java
+index a45d8b4..5fdbd4d 100644
+--- a/src/java/test/org/apache/zookeeper/test/ZkDatabaseCorruptionTest.java
++++ b/src/java/test/org/apache/zookeeper/test/ZkDatabaseCorruptionTest.java
+@@ -121,12 +121,16 @@ public class ZkDatabaseCorruptionTest extends ZKTestCase {
+         }
+         //wait for servers to be up
+         String[] list = qb.hostPort.split(",");
+-        for (int i =0; i < 4; i++) {
+-            String hp = list[i];
+-          Assert.assertTrue("waiting for server up",
+-                       ClientBase.waitForServerUp(hp,
+-                                    CONNECTION_TIMEOUT));
+-            LOG.info(hp + " is accepting client connections");
++        for (int i = 0; i < 5; i++) {
++            if(leaderSid != (i + 1)) {
++                String hp = list[i];
++                Assert.assertTrue("waiting for server up",
++                        ClientBase.waitForServerUp(hp,
++                                CONNECTION_TIMEOUT));
++                LOG.info("{} is accepting client connections", hp);
++            } else {
++                LOG.info("Skipping the leader");
++            }
+         }
+ 
+         zk = qb.createClient();
+-- 
+1.7.9.5
+

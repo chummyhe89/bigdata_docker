@@ -1,0 +1,61 @@
+From 857c559374b03cd271115301da5295fcd28bb9f5 Mon Sep 17 00:00:00 2001
+From: Michi Mutsuzaki <michim@apache.org>
+Date: Mon, 24 Mar 2014 21:45:38 +0000
+Subject: [PATCH 78/94] ZOOKEEPER-1901. [JDK8] Sort children for comparison in
+ AsyncOps tests (Andrew Purtell via michim)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1581080 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                                        |    4 ++++
+ .../test/org/apache/zookeeper/test/AsyncOps.java   |    3 +++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 9f80fe5..e48a1a4 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -5,6 +5,10 @@ Backward compatible changes:
+ BUGFIXES:
+ 
+   ZOOKEEPER-2039. Jute compareBytes incorrect comparison index (Ian Dimayuga via fpj)
++
++  ZOOKEEPER-1901. [JDK8] Sort children for comparison in AsyncOps tests
++  (Andrew Purtell via michim)
++
+   ZOOKEEPER-1596. Zab1_0Test should ensure that the file is closed
+   (Enis Soztutar via phunt)
+ 
+diff --git a/src/java/test/org/apache/zookeeper/test/AsyncOps.java b/src/java/test/org/apache/zookeeper/test/AsyncOps.java
+index 328a15a..de4c515 100644
+--- a/src/java/test/org/apache/zookeeper/test/AsyncOps.java
++++ b/src/java/test/org/apache/zookeeper/test/AsyncOps.java
+@@ -19,6 +19,7 @@
+ package org.apache.zookeeper.test;
+ 
+ import java.util.ArrayList;
++import java.util.Collections;
+ import java.util.List;
+ import java.util.concurrent.CountDownLatch;
+ import java.util.concurrent.TimeUnit;
+@@ -235,6 +236,7 @@ public class AsyncOps {
+         {
+             this.children =
+                 (children == null ? new ArrayList<String>() : children);
++            Collections.sort(this.children);
+             super.processResult(Code.get(rc), path, ctx);
+         }
+         
+@@ -320,6 +322,7 @@ public class AsyncOps {
+         {
+             this.children =
+                 (children == null ? new ArrayList<String>() : children);
++            Collections.sort(this.children);
+             super.processResult(Code.get(rc), path, ctx);
+         }
+         
+-- 
+1.7.9.5
+

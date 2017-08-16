@@ -1,0 +1,79 @@
+From 701276a4706e81fa8cec5dc2295457b492f3c1a8 Mon Sep 17 00:00:00 2001
+From: Flavio Paiva Junqueira <fpj@apache.org>
+Date: Wed, 18 Sep 2013 12:33:45 +0000
+Subject: [PATCH 52/94] ZOOKEEPER-1753. ClientCnxn is not properly releasing
+ the resources, which are used to ping RwServer
+ (Rakesh R via fpj)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1524387 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt                                        |    3 +++
+ src/java/main/org/apache/zookeeper/ClientCnxn.java |   23 ++++++++++++++++----
+ 2 files changed, 22 insertions(+), 4 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index cfdc692..b87dc63 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -64,6 +64,9 @@ BUGFIXES:
+ 
+   ZOOKEEPER-1657. Increased CPU usage by unnecessary SASL checks (Philip K. Warren via fpj)
+ 
++  ZOOKEEPER-1753. ClientCnxn is not properly releasing the resources, 
++                  which are used to ping RwServer (Rakesh R via fpj)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/main/org/apache/zookeeper/ClientCnxn.java b/src/java/main/org/apache/zookeeper/ClientCnxn.java
+index c29b2c8..eafc0c8 100644
+--- a/src/java/main/org/apache/zookeeper/ClientCnxn.java
++++ b/src/java/main/org/apache/zookeeper/ClientCnxn.java
+@@ -1128,25 +1128,40 @@ public class ClientCnxn {
+             LOG.info("Checking server " + addr + " for being r/w." +
+                     " Timeout " + pingRwTimeout);
+ 
++            Socket sock = null;
++            BufferedReader br = null;
+             try {
+-                Socket sock = new Socket(addr.getHostName(), addr.getPort());
++                sock = new Socket(addr.getHostName(), addr.getPort());
+                 sock.setSoLinger(false, -1);
+                 sock.setSoTimeout(1000);
+                 sock.setTcpNoDelay(true);
+                 sock.getOutputStream().write("isro".getBytes());
+                 sock.getOutputStream().flush();
+                 sock.shutdownOutput();
+-                BufferedReader br = new BufferedReader(
++                br = new BufferedReader(
+                         new InputStreamReader(sock.getInputStream()));
+                 result = br.readLine();
+-                sock.close();
+-                br.close();
+             } catch (ConnectException e) {
+                 // ignore, this just means server is not up
+             } catch (IOException e) {
+                 // some unexpected error, warn about it
+                 LOG.warn("Exception while seeking for r/w server " +
+                         e.getMessage(), e);
++            } finally {
++                if (sock != null) {
++                    try {
++                        sock.close();
++                    } catch (IOException e) {
++                        LOG.warn("Unexpected exception", e);
++                    }
++                }
++                if (br != null) {
++                    try {
++                        br.close();
++                    } catch (IOException e) {
++                        LOG.warn("Unexpected exception", e);
++                    }
++                }
+             }
+ 
+             if ("rw".equals(result)) {
+-- 
+1.7.9.5
+

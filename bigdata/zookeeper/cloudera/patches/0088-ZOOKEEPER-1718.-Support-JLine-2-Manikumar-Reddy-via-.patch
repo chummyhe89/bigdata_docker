@@ -1,0 +1,29 @@
+From 299df6216d1dde27389c79df86eec50028e37b48 Mon Sep 17 00:00:00 2001
+From: Hongchao Deng <hdeng@cloudera.com>
+Date: Mon, 18 May 2015 11:08:48 -0700
+Subject: [PATCH 88/94] ZOOKEEPER-1718. Support JLine 2 (Manikumar Reddy via
+ phunt)
+
+---
+ .../main/org/apache/zookeeper/ZooKeeperMain.java   |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/java/main/org/apache/zookeeper/ZooKeeperMain.java b/src/java/main/org/apache/zookeeper/ZooKeeperMain.java
+index a5b700a..2ebd605 100644
+--- a/src/java/main/org/apache/zookeeper/ZooKeeperMain.java
++++ b/src/java/main/org/apache/zookeeper/ZooKeeperMain.java
+@@ -302,9 +302,9 @@ public class ZooKeeperMain {
+             boolean jlinemissing = false;
+             // only use jline if it's in the classpath
+             try {
+-                Class<?> consoleC = Class.forName("jline.ConsoleReader");
++                Class<?> consoleC = Class.forName("jline.console.ConsoleReader");
+                 Class<?> completorC =
+-                    Class.forName("org.apache.zookeeper.JLineZNodeCompletor");
++                    Class.forName("org.apache.zookeeper.JLineZNodeCompleter");
+ 
+                 System.out.println("JLine support is enabled");
+ 
+-- 
+1.7.9.5
+

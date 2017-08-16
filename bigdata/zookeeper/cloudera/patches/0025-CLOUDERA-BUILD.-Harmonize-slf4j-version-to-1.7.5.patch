@@ -1,0 +1,27 @@
+From 5ce6f5e2f579860ff49f506020055b23e014c612 Mon Sep 17 00:00:00 2001
+From: Patrick Hunt <phunt@cloudera.com>
+Date: Wed, 11 Dec 2013 23:01:57 -0800
+Subject: [PATCH 25/94] CLOUDERA-BUILD. Harmonize slf4j version to 1.7.5
+
+---
+ ivy.xml |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/ivy.xml b/ivy.xml
+index b3e8cb7..8d9811a 100644
+--- a/ivy.xml
++++ b/ivy.xml
+@@ -39,8 +39,8 @@
+   </publications>
+ 
+   <dependencies>
+-    <dependency org="org.slf4j" name="slf4j-api" rev="1.6.1"/>
+-    <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" transitive="false"/>
++    <dependency org="org.slf4j" name="slf4j-api" rev="1.7.5"/>
++    <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.5" transitive="false"/>
+   
+     <!-- transitive false turns off dependency checking, log4j deps seem borked -->
+     <dependency org="log4j" name="log4j" rev="1.2.15" transitive="false" conf="default"/>
+-- 
+1.7.9.5
+

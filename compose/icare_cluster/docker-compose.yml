@@ -1,0 +1,62 @@
+version: "2"
+services:
+ node2:
+  image: icare/hadoop
+  environment:
+   HOSTNAME: "node2"
+   ZK_ID: "2"  
+   K_ID: "1"
+   ZOO_LOG_DIR: /opt/zookeeper/logs
+  hostname: node2
+  volumes:
+   - /opt/share
+   - /root_ssh
+  command: /start_slave.sh
+
+ node3:
+  image: icare/hadoop
+  environment:
+   ZK_ID: "3"
+   HOSTNAME: "node3"
+   K_ID: "2"
+   ZOO_LOG_DIR: /opt/zookeeper/logs
+  hostname: node3
+  volumes_from:
+   - node2 
+  command: /start_slave.sh
+
+ node4:
+  image: icare/hadoop
+  environment:
+   HOSTNAME: "node4"
+   K_ID: "3"
+   ZOO_LOG_DIR: /opt/zookeeper/logs
+  hostname: node4
+  volumes_from:
+   - node2 
+  ports:
+   - "18080:8080"
+  command: /start_slave.sh
+
+ node1:
+  image: icare/hadoop
+  environment:
+   ZK_ID: "1"
+   HOSTNAME: "node1"
+   K_ID: "0"
+   P_VERSION: "3.4.1"
+   ZOO_LOG_DIR: /opt/zookeeper/logs
+  extra_hosts:
+   - "googledns:8.8.8.8"
+  hostname: node1
+  volumes_from:
+   - node2 
+  depends_on:
+   - node2
+   - node3
+   - node4
+  ports:
+   - "18088:8088"
+   - "19200:9200"
+   - "18086:8086"
+  command: /start_master.sh

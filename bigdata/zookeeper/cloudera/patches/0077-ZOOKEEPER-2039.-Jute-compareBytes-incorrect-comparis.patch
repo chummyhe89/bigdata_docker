@@ -1,0 +1,60 @@
+From a7567ccddd6849409efa7c3a164bff6c1bcf0af6 Mon Sep 17 00:00:00 2001
+From: Flavio Paiva Junqueira <fpj@apache.org>
+Date: Thu, 18 Sep 2014 15:51:08 +0000
+Subject: [PATCH 77/94] ZOOKEEPER-2039. Jute compareBytes incorrect comparison
+ index (Ian Dimayuga via fpj)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1626009 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                              |    1 +
+ src/java/main/org/apache/jute/Utils.java |   20 ++++++++++----------
+ 2 files changed, 11 insertions(+), 10 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 834a024..9f80fe5 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -4,6 +4,7 @@ Backward compatible changes:
+ 
+ BUGFIXES:
+ 
++  ZOOKEEPER-2039. Jute compareBytes incorrect comparison index (Ian Dimayuga via fpj)
+   ZOOKEEPER-1596. Zab1_0Test should ensure that the file is closed
+   (Enis Soztutar via phunt)
+ 
+diff --git a/src/java/main/org/apache/jute/Utils.java b/src/java/main/org/apache/jute/Utils.java
+index 243f2c8..1205fa2 100644
+--- a/src/java/main/org/apache/jute/Utils.java
++++ b/src/java/main/org/apache/jute/Utils.java
+@@ -268,15 +268,15 @@ public class Utils {
+         return stream.toByteArray();
+     }
+     public static int compareBytes(byte b1[], int off1, int len1, byte b2[], int off2, int len2) {
+-    	int i;
+-    	for(i=0; i < len1 && i < len2; i++) {
+-    		if (b1[off1+i] != b2[off2+i]) {
+-    			return b1[off1+i] < b2[off2+1] ? -1 : 1;
+-    		}
+-    	}
+-    	if (len1 != len2) {
+-    		return len1 < len2 ? -1 : 1;
+-    	}
+-    	return 0;
++        int i;
++        for(i=0; i < len1 && i < len2; i++) {
++            if (b1[off1+i] != b2[off2+i]) {
++                return b1[off1+i] < b2[off2+i] ? -1 : 1;
++            }
++        }
++        if (len1 != len2) {
++            return len1 < len2 ? -1 : 1;
++        }
++        return 0;
+     }
+ }
+-- 
+1.7.9.5
+

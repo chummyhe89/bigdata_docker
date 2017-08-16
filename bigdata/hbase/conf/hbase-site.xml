@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+/**
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<configuration>
+<property>
+	<name>hbase.rootdir</name>
+	<value>hdfs://mycluster:8020/hbase</value>
+</property>
+<property>
+	<name>hbase.cluster.distributed</name>
+	<value>true</value>
+</property>
+<property>
+	<name>hbase.tmp.dir</name>
+	<value>/bigdata/tmp/hbase</value>
+</property>
+<property>
+	<name>hbase.zookeeper.quorum</name>
+	<value>node1:2181,node2:2181,node3:2181</value>
+</property>
+<property>
+	<name>hbase.regionserver.handler.count</name>
+	<value>200</value>
+</property>
+<property>
+    <name>hbase.client.scanner.timeout.period</name>
+    <value>120000</value>
+    <description>Client scanner lease period in milliseconds.</description>
+</property>
+<property>
+	<name>hbase.rpc.timeout</name>
+	<value>120000</value>
+</property>
+<property>
+  <name>zookeeper.session.timeout</name>
+  <value>120000</value>
+  <description>ZooKeeper session timeout in milliseconds. It is used in two different ways.
+    First, this value is used in the ZK client that HBase uses to connect to the ensemble.
+    It is also used by HBase when it starts a ZK server and it is passed as the 'maxSessionTimeout'. See
+    http://hadoop.apache.org/zookeeper/docs/current/zookeeperProgrammers.html#ch_zkSessions.
+    For example, if a HBase region server connects to a ZK ensemble that's also managed by HBase, then the
+    session timeout will be the one specified by this configuration. But, a region server that connects
+    to an ensemble managed with a different configuration will be subjected that ensemble's maxSessionTimeout. So,
+    even though HBase might propose using 90 seconds, the ensemble can have a max timeout lower than this and
+    it will take precedence. The current default that ZK ships with is 40 seconds, which is lower than HBase's.
+  </description>
+</property>
+  <property>
+    <name>hbase.hregion.memstore.flush.size</name>
+    <value>268435456</value>
+    <description>
+    Memstore will be flushed to disk if size of the memstore
+    exceeds this number of bytes.  Value is checked by a thread that runs
+    every hbase.server.thread.wakefrequency.</description>
+  </property>
+<property>
+    <name>hfile.format.version</name>
+    <value>3</value>
+    <description>The HFile format version to use for new files.
+    Version 3 adds support for tags in hfiles (See http://hbase.apache.org/book.html#hbase.tags).
+    Distributed Log Replay requires that tags are enabled. Also see the configuration
+    'hbase.replication.rpc.codec'.
+    By default CDH5 uses HFileV2 for backward compatibility
+    purposes.
+    </description>
+</property>
+<property>
+  <name>hbase.hregion.max.filesize</name>
+  <value>21474836480</value>
+  <description>
+  Maximum HStoreFile size. If any one of a column families' HStoreFiles has
+  grown to exceed this value, the hosting HRegion is split in two.</description>
+</property>
+  <property>
+    <name>hfile.block.cache.size</name>
+    <value>0.5</value>
+    <description>Percentage of maximum heap (-Xmx setting) to allocate to block cache
+        used by HFile/StoreFile. Default of 0.4 means allocate 40%.
+        Set to 0 to disable but it's not recommended; you need at least
+        enough cache to hold the storefile indices.</description>
+  </property>
+<property>
+	<name>hbase.hregion.majorcompaction</name>
+	<value>0</value>
+</property>
+    <property>
+    <name>hbase.regionserver.global.memstore.size</name>
+    <value>0.3</value>
+    <description>Maximum size of all memstores in a region server before new
+      updates are blocked and flushes are forced. Defaults to 40% of heap (0.4).
+      Updates are blocked and flushes are forced until size of all memstores
+      in a region server hits hbase.regionserver.global.memstore.size.lower.limit.
+      The default value in this configuration has been intentionally left emtpy in order to
+      honor the old hbase.regionserver.global.memstore.upperLimit property if present.</description>
+  </property>
+<property>
+        <name>hbase.balancer.period</name>
+        <value>315360000</value>
+</property>
+</configuration>

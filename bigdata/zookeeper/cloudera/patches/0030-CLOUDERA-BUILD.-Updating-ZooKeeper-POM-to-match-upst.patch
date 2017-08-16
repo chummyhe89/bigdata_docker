@@ -1,0 +1,56 @@
+From a6cb8b1fa3292401c72cc70c36500e5f0a3f9b92 Mon Sep 17 00:00:00 2001
+From: Sean Mackrory <sean@cloudera.com>
+Date: Fri, 8 Aug 2014 08:42:06 -0600
+Subject: [PATCH 30/94] CLOUDERA-BUILD. Updating ZooKeeper POM to match
+ upstream dependencies
+
+---
+ cloudera/maven-packaging/zookeeper/pom.xml |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/cloudera/maven-packaging/zookeeper/pom.xml b/cloudera/maven-packaging/zookeeper/pom.xml
+index 896a02f..97255df 100644
+--- a/cloudera/maven-packaging/zookeeper/pom.xml
++++ b/cloudera/maven-packaging/zookeeper/pom.xml
+@@ -34,6 +34,16 @@
+ 
+   <dependencies>
+     <dependency>
++      <groupId>org.slf4j</groupId>
++      <artifactId>slf4j-api</artifactId>
++      <scope>compile</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.slf4j</groupId>
++      <artifactId>slf4j-log4j12</artifactId>
++      <scope>compile</scope>
++    </dependency>
++    <dependency>
+       <groupId>log4j</groupId>
+       <artifactId>log4j</artifactId>
+       <scope>compile</scope>
+@@ -44,11 +54,21 @@
+       <scope>compile</scope>
+     </dependency>
+     <dependency>
++      <groupId>org.jboss.netty</groupId>
++      <artifactId>netty</artifactId>
++      <scope>compile</scope>
++    </dependency>
++    <dependency>
+       <groupId>junit</groupId>
+       <artifactId>junit</artifactId>
+       <scope>test</scope>
+     </dependency>
+     <dependency>
++      <groupId>org.mockito</groupId>
++      <artifactId>mockito-all</artifactId>
++      <scope>test</scope>
++    </dependency>
++    <dependency>
+       <groupId>checkstyle</groupId>
+       <artifactId>checkstyle</artifactId>
+       <scope>test</scope>
+-- 
+1.7.9.5
+

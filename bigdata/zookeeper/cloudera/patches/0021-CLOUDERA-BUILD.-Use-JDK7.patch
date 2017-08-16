@@ -1,0 +1,25 @@
+From 1a62c561841e9788dc072f2f4df8ae622d63ef23 Mon Sep 17 00:00:00 2001
+From: Andrew Bayer <andrew@cloudera.com>
+Date: Tue, 9 Jul 2013 11:49:48 -0700
+Subject: [PATCH 21/94] CLOUDERA-BUILD. Use JDK7.
+
+---
+ build.xml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/build.xml b/build.xml
+index b36daa7..f89d603 100644
+--- a/build.xml
++++ b/build.xml
+@@ -1673,7 +1673,7 @@
+      </condition>
+ 
+      <target name="jvm-check">
+-       <property name="javaVersion" value="1.6"/>
++       <property name="javaVersion" value="1.7"/>
+        <property name="requiredJavaVersion" value="xx${javaVersion}"/>
+        <property name="currentJavaVersion" value="xx${java.version}"/>
+        <condition property="jvm.fail">
+-- 
+1.7.9.5
+

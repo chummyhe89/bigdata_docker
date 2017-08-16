@@ -1,0 +1,252 @@
+2017-06-08 09:03:07 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :42-line]-[INFO:] into searchByPersion.....查询条件so==cn.icarevision.ipbs.dataopen.so.BaseSo@1c4f05eb[
+  page_index=0
+  page_size=20
+  order=capture_time
+  start_time=2017-06-08 00:00:00
+  end_time=2017-06-08 09:03:30
+  bayonet_ids={}
+  feats=<null>
+  goatee=-1
+  side_burns=-1
+  mustache=-1
+  nobeard=-1
+  hair_color=-1
+  hair_style=-1
+  bald=-1
+  bangs=-1
+  earrings=-1
+  hat=-1
+  necklace=-1
+  necktie=-1
+  glass=-1
+  pouch=-1
+  chin=-1
+  gender=1
+  age_start=0
+  age_end=100
+  top_style=-1
+  bottom_style=-1
+  bag=-1
+  bag_color=-1
+  top_color=-1
+  bottom_color=-1
+  shoe_color=-1
+]
+2017-06-08 09:03:07 [cn.icarevision.ipbs.component.es.client.ESClient :587-line]-[INFO:] realEsExitIndexNames is null
+2017-06-08 09:03:07 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :50-line]-[ERROR:] indices must not be null
+2017-06-08 09:03:11 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :42-line]-[INFO:] into searchByPersion.....查询条件so==cn.icarevision.ipbs.dataopen.so.BaseSo@52ae5178[
+  page_index=0
+  page_size=20
+  order=capture_time
+  start_time=2017-06-08 00:00:00
+  end_time=2017-06-08 09:03:30
+  bayonet_ids={}
+  feats=<null>
+  goatee=1
+  side_burns=-1
+  mustache=-1
+  nobeard=-1
+  hair_color=-1
+  hair_style=-1
+  bald=-1
+  bangs=-1
+  earrings=-1
+  hat=-1
+  necklace=-1
+  necktie=-1
+  glass=-1
+  pouch=-1
+  chin=-1
+  gender=1
+  age_start=0
+  age_end=100
+  top_style=-1
+  bottom_style=-1
+  bag=-1
+  bag_color=-1
+  top_color=-1
+  bottom_color=-1
+  shoe_color=-1
+]
+2017-06-08 09:03:11 [cn.icarevision.ipbs.component.es.client.ESClient :587-line]-[INFO:] realEsExitIndexNames is null
+2017-06-08 09:03:11 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :50-line]-[ERROR:] indices must not be null
+2017-06-08 09:03:11 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :42-line]-[INFO:] into searchByPersion.....查询条件so==cn.icarevision.ipbs.dataopen.so.BaseSo@7dba0368[
+  page_index=0
+  page_size=20
+  order=capture_time
+  start_time=2017-06-08 00:00:00
+  end_time=2017-06-08 09:03:30
+  bayonet_ids={}
+  feats=<null>
+  goatee=1
+  side_burns=-1
+  mustache=-1
+  nobeard=-1
+  hair_color=-1
+  hair_style=-1
+  bald=-1
+  bangs=-1
+  earrings=-1
+  hat=-1
+  necklace=-1
+  necktie=-1
+  glass=-1
+  pouch=-1
+  chin=-1
+  gender=1
+  age_start=0
+  age_end=100
+  top_style=-1
+  bottom_style=-1
+  bag=-1
+  bag_color=-1
+  top_color=-1
+  bottom_color=-1
+  shoe_color=-1
+]
+2017-06-08 09:03:11 [cn.icarevision.ipbs.component.es.client.ESClient :587-line]-[INFO:] realEsExitIndexNames is null
+2017-06-08 09:03:11 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :50-line]-[ERROR:] indices must not be null
+2017-06-08 09:03:14 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :42-line]-[INFO:] into searchByPersion.....查询条件so==cn.icarevision.ipbs.dataopen.so.BaseSo@3e91d5c6[
+  page_index=0
+  page_size=20
+  order=capture_time
+  start_time=2017-06-08 00:00:00
+  end_time=2017-06-08 09:03:30
+  bayonet_ids={}
+  feats=<null>
+  goatee=-1
+  side_burns=-1
+  mustache=-1
+  nobeard=-1
+  hair_color=-1
+  hair_style=1
+  bald=-1
+  bangs=-1
+  earrings=-1
+  hat=-1
+  necklace=-1
+  necktie=-1
+  glass=-1
+  pouch=-1
+  chin=-1
+  gender=1
+  age_start=0
+  age_end=100
+  top_style=-1
+  bottom_style=-1
+  bag=-1
+  bag_color=-1
+  top_color=-1
+  bottom_color=-1
+  shoe_color=-1
+]
+2017-06-08 09:03:14 [cn.icarevision.ipbs.component.es.client.ESClient :587-line]-[INFO:] realEsExitIndexNames is null
+2017-06-08 09:03:14 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :50-line]-[ERROR:] indices must not be null
+2017-06-08 09:03:14 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :42-line]-[INFO:] into searchByPersion.....查询条件so==cn.icarevision.ipbs.dataopen.so.BaseSo@c0ac17c[
+  page_index=0
+  page_size=20
+  order=capture_time
+  start_time=2017-06-08 00:00:00
+  end_time=2017-06-08 09:03:30
+  bayonet_ids={}
+  feats=<null>
+  goatee=-1
+  side_burns=-1
+  mustache=-1
+  nobeard=-1
+  hair_color=-1
+  hair_style=1
+  bald=-1
+  bangs=-1
+  earrings=-1
+  hat=-1
+  necklace=-1
+  necktie=-1
+  glass=-1
+  pouch=-1
+  chin=-1
+  gender=1
+  age_start=0
+  age_end=100
+  top_style=-1
+  bottom_style=-1
+  bag=-1
+  bag_color=-1
+  top_color=-1
+  bottom_color=-1
+  shoe_color=-1
+]
+2017-06-08 09:03:14 [cn.icarevision.ipbs.component.es.client.ESClient :587-line]-[INFO:] realEsExitIndexNames is null
+2017-06-08 09:03:14 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :50-line]-[ERROR:] indices must not be null
+2017-06-08 09:03:14 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :42-line]-[INFO:] into searchByPersion.....查询条件so==cn.icarevision.ipbs.dataopen.so.BaseSo@24b6f41e[
+  page_index=0
+  page_size=20
+  order=capture_time
+  start_time=2017-06-08 00:00:00
+  end_time=2017-06-08 09:03:30
+  bayonet_ids={}
+  feats=<null>
+  goatee=-1
+  side_burns=-1
+  mustache=-1
+  nobeard=-1
+  hair_color=-1
+  hair_style=1
+  bald=-1
+  bangs=-1
+  earrings=-1
+  hat=-1
+  necklace=-1
+  necktie=-1
+  glass=-1
+  pouch=-1
+  chin=-1
+  gender=1
+  age_start=0
+  age_end=100
+  top_style=-1
+  bottom_style=-1
+  bag=-1
+  bag_color=-1
+  top_color=-1
+  bottom_color=-1
+  shoe_color=-1
+]
+2017-06-08 09:03:14 [cn.icarevision.ipbs.component.es.client.ESClient :587-line]-[INFO:] realEsExitIndexNames is null
+2017-06-08 09:03:14 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :50-line]-[ERROR:] indices must not be null
+2017-06-08 09:03:14 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :42-line]-[INFO:] into searchByPersion.....查询条件so==cn.icarevision.ipbs.dataopen.so.BaseSo@5827b057[
+  page_index=0
+  page_size=20
+  order=capture_time
+  start_time=2017-06-08 00:00:00
+  end_time=2017-06-08 09:03:30
+  bayonet_ids={}
+  feats=<null>
+  goatee=-1
+  side_burns=-1
+  mustache=-1
+  nobeard=-1
+  hair_color=-1
+  hair_style=1
+  bald=-1
+  bangs=-1
+  earrings=-1
+  hat=-1
+  necklace=-1
+  necktie=-1
+  glass=-1
+  pouch=-1
+  chin=-1
+  gender=1
+  age_start=0
+  age_end=100
+  top_style=-1
+  bottom_style=-1
+  bag=-1
+  bag_color=-1
+  top_color=-1
+  bottom_color=-1
+  shoe_color=-1
+]
+2017-06-08 09:03:14 [cn.icarevision.ipbs.component.es.client.ESClient :587-line]-[INFO:] realEsExitIndexNames is null
+2017-06-08 09:03:14 [cn.icarevision.ipbs.dataopen.web.rest.RecordSearch :50-line]-[ERROR:] indices must not be null

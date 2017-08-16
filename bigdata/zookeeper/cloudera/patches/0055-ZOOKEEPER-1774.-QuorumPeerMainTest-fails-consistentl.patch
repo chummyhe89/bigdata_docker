@@ -1,0 +1,45 @@
+From 46abda718613ebd01fffdd4e92a0c9452b32f1f4 Mon Sep 17 00:00:00 2001
+From: "Patrick D. Hunt" <phunt@apache.org>
+Date: Tue, 8 Oct 2013 05:27:13 +0000
+Subject: [PATCH 55/94] ZOOKEEPER-1774. QuorumPeerMainTest fails consistently
+ with complains about host" assertion failure (phunt)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1530155 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                                        |    3 +++
+ .../server/quorum/QuorumPeerMainTest.java          |    2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 1036474..75b8865 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -73,6 +73,9 @@ BUGFIXES:
+   ZOOKEEPER-1770. NullPointerException in SnapshotFormatter
+   (Germán Blanco via phunt)
+ 
++  ZOOKEEPER-1774. QuorumPeerMainTest fails consistently with
++  "complains about host" assertion failure (phunt)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/test/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java b/src/java/test/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java
+index 0acf8f2..24cd060 100644
+--- a/src/java/test/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java
++++ b/src/java/test/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java
+@@ -406,7 +406,7 @@ public class QuorumPeerMainTest extends QuorumPeerTestBase {
+ 
+             boolean isup =
+                 ClientBase.waitForServerUp("127.0.0.1:" + CLIENT_PORT_QP1,
+-                        5000);
++                        30000);
+ 
+             Assert.assertFalse("Server never came up", isup);
+ 
+-- 
+1.7.9.5
+

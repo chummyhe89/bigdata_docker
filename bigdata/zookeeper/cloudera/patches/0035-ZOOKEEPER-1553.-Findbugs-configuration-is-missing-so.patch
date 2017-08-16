@@ -1,0 +1,46 @@
+From 92b1748794598278434bb36f2af37303b0a7bafe Mon Sep 17 00:00:00 2001
+From: "Patrick D. Hunt" <phunt@apache.org>
+Date: Wed, 12 Dec 2012 08:02:34 +0000
+Subject: [PATCH 35/94] ZOOKEEPER-1553. Findbugs configuration is missing some
+ dependencies (Sean Busbey via phunt)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1420556 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt |    3 +++
+ build.xml   |    6 +++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 934b041..d5e8ab2 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -13,6 +13,9 @@ BUGFIXES:
+   ZOOKEEPER-753. log4j dependency in the pom needs to have exclusion
+   lists (Sean Busbey via phunt)
+ 
++  ZOOKEEPER-1553. Findbugs configuration is missing some dependencies
++  (Sean Busbey via phunt)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/build.xml b/build.xml
+index d090ed0..5556a4d 100644
+--- a/build.xml
++++ b/build.xml
+@@ -1400,7 +1400,11 @@
+         <mkdir dir="${findbugs.out.dir}" />
+         <findbugs home="${findbugs.home}" output="xml:withMessages" excludeFilter="${findbugs.exclude.file}" 
+                 outputFile="${findbugs.report.xmlfile}" effort="max" jvmargs="-Xmx512M">
+-            <auxClasspath path="${ivy.lib}/log4j-1.2.16.jar" />
++            <auxClasspath>
++                <fileset dir="${ivy.lib}">
++                    <include name="**/*.jar" />
++                </fileset>
++            </auxClasspath>
+             <sourcePath path="${java.src.dir}" />
+             <class location="${build.dir}/${final.name}.jar" />
+         </findbugs>
+-- 
+1.7.9.5
+

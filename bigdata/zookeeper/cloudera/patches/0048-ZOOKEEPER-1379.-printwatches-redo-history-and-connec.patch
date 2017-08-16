@@ -1,0 +1,86 @@
+From 3d7746384e9914bf451291c98ee9c49fdc7d1fed Mon Sep 17 00:00:00 2001
+From: Flavio Paiva Junqueira <fpj@apache.org>
+Date: Mon, 2 Sep 2013 21:47:42 +0000
+Subject: [PATCH 48/94] ZOOKEEPER-1379. 'printwatches, redo, history and
+ connect '. client commands always print usage. This
+ is not necessary (edward via fpj)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1519521 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                                        |    2 ++
+ .../main/org/apache/zookeeper/ZooKeeperMain.java   |    2 +-
+ .../test/org/apache/zookeeper/ZooKeeperTest.java   |   23 ++++++++++++++++++++
+ 3 files changed, 26 insertions(+), 1 deletion(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 8ef1bc2..a89a94e 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -53,6 +53,8 @@ BUGFIXES:
+ 
+   ZOOKEEPER-1731. Unsynchronized access to ServerCnxnFactory.connectionBeans results in 
+   deadlock. (Dave Latham via camille)
++
++  ZOOKEEPER-1379. 'printwatches, redo, history and connect '. client commands always print usage. This is not necessary (edward via fpj)
+   
+ IMPROVEMENTS:
+ 
+diff --git a/src/java/main/org/apache/zookeeper/ZooKeeperMain.java b/src/java/main/org/apache/zookeeper/ZooKeeperMain.java
+index 3a96b82..b1b4c27 100644
+--- a/src/java/main/org/apache/zookeeper/ZooKeeperMain.java
++++ b/src/java/main/org/apache/zookeeper/ZooKeeperMain.java
+@@ -810,7 +810,7 @@ public class ZooKeeperMain {
+                 b = args[2].getBytes();
+ 
+             zk.addAuthInfo(args[1], b);
+-        } else {
++        } else if (!commandMap.containsKey(cmd)) {
+             usage();
+         }
+         return watch;
+diff --git a/src/java/test/org/apache/zookeeper/ZooKeeperTest.java b/src/java/test/org/apache/zookeeper/ZooKeeperTest.java
+index 6d81d09..b438e30 100644
+--- a/src/java/test/org/apache/zookeeper/ZooKeeperTest.java
++++ b/src/java/test/org/apache/zookeeper/ZooKeeperTest.java
+@@ -19,7 +19,9 @@ package org.apache.zookeeper;
+ 
+ import static org.junit.Assert.*;
+ 
++import java.io.ByteArrayOutputStream;
+ import java.io.IOException;
++import java.io.PrintStream;
+ import java.util.List;
+ import java.util.concurrent.atomic.AtomicInteger;
+ 
+@@ -178,4 +180,25 @@ public class ZooKeeperTest extends ClientBase {
+             }
+     }
+ 
++    @Test
++    public void testCliCommandsNotEchoingUsage() throws Exception {
++            // setup redirect out/err streams to get System.in/err, use this judiciously!
++           final PrintStream systemErr = System.err; // get current err
++           final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
++           System.setErr(new PrintStream(errContent));
++           final ZooKeeper zk = createClient();
++           ZooKeeperMain zkMain = new ZooKeeperMain(zk);
++           String cmd1 = "printwatches";
++           zkMain.executeLine(cmd1);
++           String cmd2 = "history";
++           zkMain.executeLine(cmd2);
++           String cmd3 = "redo";
++           zkMain.executeLine(cmd3);
++           // revert redirect of out/err streams - important step!
++           System.setErr(systemErr);
++           if (errContent.toString().contains("ZooKeeper -server host:port cmd args")) {
++                fail("CLI commands (history, redo, connect, printwatches) display usage info!");
++            }
++    }
++
+ }
+-- 
+1.7.9.5
+

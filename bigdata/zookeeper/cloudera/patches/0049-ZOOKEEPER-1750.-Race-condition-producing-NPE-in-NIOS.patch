@@ -1,0 +1,170 @@
+From c3a688053ba2e47c038c64cd7abd12067e651d83 Mon Sep 17 00:00:00 2001
+From: Michi Mutsuzaki <michim@apache.org>
+Date: Thu, 12 Sep 2013 17:26:40 +0000
+Subject: [PATCH 49/94] ZOOKEEPER-1750. Race condition producing NPE in
+ NIOServerCnxn.toString (Rakesh R via michim)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1522673 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                                        |    5 +-
+ .../org/apache/zookeeper/server/NIOServerCnxn.java |   11 ++-
+ .../apache/zookeeper/server/NIOServerCnxnTest.java |   71 ++++++++++++++++++++
+ 3 files changed, 80 insertions(+), 7 deletions(-)
+ create mode 100644 src/java/test/org/apache/zookeeper/server/NIOServerCnxnTest.java
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index a89a94e..ffa81a2 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -55,7 +55,10 @@ BUGFIXES:
+   deadlock. (Dave Latham via camille)
+ 
+   ZOOKEEPER-1379. 'printwatches, redo, history and connect '. client commands always print usage. This is not necessary (edward via fpj)
+-  
++
++  ZOOKEEPER-1750. Race condition producing NPE in NIOServerCnxn.toString
++  (Rakesh R via michim)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/main/org/apache/zookeeper/server/NIOServerCnxn.java b/src/java/main/org/apache/zookeeper/server/NIOServerCnxn.java
+index 0fd56b6..49882ec 100644
+--- a/src/java/main/org/apache/zookeeper/server/NIOServerCnxn.java
++++ b/src/java/main/org/apache/zookeeper/server/NIOServerCnxn.java
+@@ -62,7 +62,7 @@ public class NIOServerCnxn extends ServerCnxn {
+ 
+     NIOServerCnxnFactory factory;
+ 
+-    SocketChannel sock;
++    final SocketChannel sock;
+ 
+     private final SelectionKey sk;
+ 
+@@ -134,7 +134,7 @@ public class NIOServerCnxn extends ServerCnxn {
+             */
+            sock.configureBlocking(true);
+            if (bb != ServerCnxnFactory.closeConn) {
+-               if (sock != null) {
++               if (sock.isOpen()) {
+                    sock.write(bb);
+                }
+                packetSent();
+@@ -208,7 +208,7 @@ public class NIOServerCnxn extends ServerCnxn {
+ 
+     void doIO(SelectionKey k) throws InterruptedException {
+         try {
+-            if (sock == null) {
++            if (sock.isOpen() == false) {
+                 LOG.warn("trying to do i/o on a null socket for session:0x"
+                          + Long.toHexString(sessionId));
+ 
+@@ -994,7 +994,7 @@ public class NIOServerCnxn extends ServerCnxn {
+      * Close resources associated with the sock of this cnxn. 
+      */
+     private void closeSock() {
+-        if (sock == null) {
++        if (sock.isOpen() == false) {
+             return;
+         }
+ 
+@@ -1043,7 +1043,6 @@ public class NIOServerCnxn extends ServerCnxn {
+                 LOG.debug("ignoring exception during socketchannel close", e);
+             }
+         }
+-        sock = null;
+     }
+     
+     private final static byte fourBytes[] = new byte[4];
+@@ -1140,7 +1139,7 @@ public class NIOServerCnxn extends ServerCnxn {
+ 
+     @Override
+     public InetSocketAddress getRemoteSocketAddress() {
+-        if (sock == null) {
++        if (sock.isOpen() == false) {
+             return null;
+         }
+         return (InetSocketAddress) sock.socket().getRemoteSocketAddress();
+diff --git a/src/java/test/org/apache/zookeeper/server/NIOServerCnxnTest.java b/src/java/test/org/apache/zookeeper/server/NIOServerCnxnTest.java
+new file mode 100644
+index 0000000..5c94ed7
+--- /dev/null
++++ b/src/java/test/org/apache/zookeeper/server/NIOServerCnxnTest.java
+@@ -0,0 +1,71 @@
++/**
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package org.apache.zookeeper.server;
++
++import java.io.IOException;
++
++import junit.framework.Assert;
++
++import org.apache.zookeeper.CreateMode;
++import org.apache.zookeeper.KeeperException;
++import org.apache.zookeeper.ZooDefs.Ids;
++import org.apache.zookeeper.ZooKeeper;
++import org.apache.zookeeper.test.ClientBase;
++import org.junit.Test;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++public class NIOServerCnxnTest extends ClientBase {
++    private static final Logger LOG = LoggerFactory
++            .getLogger(NIOServerCnxnTest.class);
++    /**
++     * Test operations on ServerCnxn after socket closure.
++     */
++    @Test(timeout = 60000)
++    public void testOperationsAfterCnxnClose() throws IOException,
++            InterruptedException, KeeperException {
++        final ZooKeeper zk = createClient();
++
++        final String path = "/a";
++        try {
++            // make sure zkclient works
++            zk.create(path, "test".getBytes(), Ids.OPEN_ACL_UNSAFE,
++                    CreateMode.PERSISTENT);
++            Assert.assertNotNull("Didn't create znode:" + path,
++                    zk.exists(path, false));
++            // Defaults ServerCnxnFactory would be instantiated with
++            // NIOServerCnxnFactory
++            Assert.assertTrue(
++                    "Didn't instantiate ServerCnxnFactory with NIOServerCnxnFactory!",
++                    serverFactory instanceof NIOServerCnxnFactory);
++            Iterable<ServerCnxn> connections = serverFactory.getConnections();
++            for (ServerCnxn serverCnxn : connections) {
++                serverCnxn.close();
++                try {
++                    serverCnxn.toString();
++                } catch (Exception e) {
++                    LOG.error("Exception while getting connection details!", e);
++                    Assert.fail("Shouldn't throw exception while "
++                            + "getting connection details!");
++                }
++            }
++        } finally {
++            zk.close();
++        }
++    }
++}
+-- 
+1.7.9.5
+

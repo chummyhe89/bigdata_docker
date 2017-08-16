@@ -1,0 +1,29 @@
+From b1f2e002ef535579393abb885850d6dfebd9fe9b Mon Sep 17 00:00:00 2001
+From: Flavio Paiva Junqueira <fpj@apache.org>
+Date: Sun, 12 Jan 2014 21:36:17 +0000
+Subject: [PATCH 70/94] ZOOKEEPER-1238. when the linger time was changed for
+ NIO the patch missed Netty (Skye Wanderman-Milne via
+ fpj)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1557614 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 1f22c1a..cd1a2c5 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -110,6 +110,9 @@ BUGFIXES:
+   ZOOKEEPER-1857. PrepRequestProcessotTest doesn't shutdown ZooKeeper server
+   (Germán Blanco via michim)
+ 
++  ZOOKEEPER-1238. when the linger time was changed for NIO the patch missed
++  Netty (Skye Wanderman-Milne via fpj)
++
+ IMPROVEMENTS:
+ 
+ 
+-- 
+1.7.9.5
+

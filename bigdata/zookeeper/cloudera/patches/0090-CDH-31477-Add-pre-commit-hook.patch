@@ -1,0 +1,24 @@
+From 619369651e2d14d28a916e771455f15c9f9ebec7 Mon Sep 17 00:00:00 2001
+From: Hongchao Deng <fengjingchao@gmail.com>
+Date: Mon, 5 Oct 2015 11:50:32 -0700
+Subject: [PATCH 90/94] CDH-31477: Add pre-commit hook
+
+Change-Id: I66f24ccc6b30b6d50d288d38e5290a1821b788b4
+---
+ cloudera/pre_commit_hook.sh |    3 +++
+ 1 file changed, 3 insertions(+)
+ create mode 100644 cloudera/pre_commit_hook.sh
+
+diff --git a/cloudera/pre_commit_hook.sh b/cloudera/pre_commit_hook.sh
+new file mode 100644
+index 0000000..8e3fe4c
+--- /dev/null
++++ b/cloudera/pre_commit_hook.sh
+@@ -0,0 +1,3 @@
++#!/bin/bash -e
++
++echo "Pass!"
+\ No newline at end of file
+-- 
+1.7.9.5
+

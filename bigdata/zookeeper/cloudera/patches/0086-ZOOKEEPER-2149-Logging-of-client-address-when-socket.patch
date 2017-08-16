@@ -1,0 +1,31 @@
+From ad21781ce9eec40f2855aa3e6bf0fe368ae2dd43 Mon Sep 17 00:00:00 2001
+From: Michi Mutsuzaki <michim@apache.org>
+Date: Wed, 25 Mar 2015 07:48:54 +0000
+Subject: [PATCH 86/94] ZOOKEEPER-2149 Logging of client address when socket
+ connection established (Hongchao Deng via michim)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/trunk@1669062 13f79535-47bb-0310-9956-ffa450edef68
+---
+ src/java/main/org/apache/zookeeper/ClientCnxn.java |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/java/main/org/apache/zookeeper/ClientCnxn.java b/src/java/main/org/apache/zookeeper/ClientCnxn.java
+index 6b230d5..2962668 100644
+--- a/src/java/main/org/apache/zookeeper/ClientCnxn.java
++++ b/src/java/main/org/apache/zookeeper/ClientCnxn.java
+@@ -849,9 +849,9 @@ public class ClientCnxn {
+         }
+ 
+         void primeConnection() throws IOException {
+-            LOG.info("Socket connection established to "
+-                     + clientCnxnSocket.getRemoteSocketAddress()
+-                     + ", initiating session");
++            LOG.info("Socket connection established, initiating session, client: {}, server: {}",
++                    clientCnxnSocket.getLocalSocketAddress(),
++                    clientCnxnSocket.getRemoteSocketAddress());
+             isFirstConnect = false;
+             long sessId = (seenRwServerBefore) ? sessionId : 0;
+             ConnectRequest conReq = new ConnectRequest(0, lastZxid,
+-- 
+1.7.9.5
+

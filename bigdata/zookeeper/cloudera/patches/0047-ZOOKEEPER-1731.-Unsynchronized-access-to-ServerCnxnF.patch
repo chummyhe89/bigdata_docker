@@ -1,0 +1,55 @@
+From 18649244f800c57801ab94c678453246d14b4780 Mon Sep 17 00:00:00 2001
+From: Camille Fournier <camille@apache.org>
+Date: Fri, 2 Aug 2013 17:07:06 +0000
+Subject: [PATCH 47/94] ZOOKEEPER-1731. Unsynchronized access to
+ ServerCnxnFactory.connectionBeans results in  
+ deadlock. (Dave Latham via camille)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1509780 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt                                        |    3 +++
+ .../apache/zookeeper/server/ServerCnxnFactory.java |    6 ++++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 9f5c5bd..8ef1bc2 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -51,6 +51,9 @@ BUGFIXES:
+ 
+   ZOOKEEPER-1629. testTransactionLogCorruption occasionally fails. (shralex via camille)
+ 
++  ZOOKEEPER-1731. Unsynchronized access to ServerCnxnFactory.connectionBeans results in 
++  deadlock. (Dave Latham via camille)
++  
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/main/org/apache/zookeeper/server/ServerCnxnFactory.java b/src/java/main/org/apache/zookeeper/server/ServerCnxnFactory.java
+index e5c6565..9b7fd87 100644
+--- a/src/java/main/org/apache/zookeeper/server/ServerCnxnFactory.java
++++ b/src/java/main/org/apache/zookeeper/server/ServerCnxnFactory.java
+@@ -21,8 +21,9 @@ package org.apache.zookeeper.server;
+ import java.io.IOException;
+ import java.net.InetSocketAddress;
+ import java.nio.ByteBuffer;
+-import java.util.HashMap;
+ import java.util.HashSet;
++import java.util.Map;
++import java.util.concurrent.ConcurrentHashMap;
+ 
+ import javax.security.auth.login.Configuration;
+ import javax.security.auth.login.LoginException;
+@@ -128,7 +129,8 @@ public abstract class ServerCnxnFactory {
+ 
+     public abstract InetSocketAddress getLocalAddress();
+ 
+-    private final HashMap<ServerCnxn, ConnectionBean> connectionBeans = new HashMap<ServerCnxn, ConnectionBean>();
++    private final Map<ServerCnxn, ConnectionBean> connectionBeans
++        = new ConcurrentHashMap<ServerCnxn, ConnectionBean>();
+ 
+     protected final HashSet<ServerCnxn> cnxns = new HashSet<ServerCnxn>();
+     public void unregisterConnection(ServerCnxn serverCnxn) {
+-- 
+1.7.9.5
+

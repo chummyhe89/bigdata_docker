@@ -1,0 +1,71 @@
+From aa243b888968c9bf444909d9965073ff87a3144f Mon Sep 17 00:00:00 2001
+From: "Patrick D. Hunt" <phunt@apache.org>
+Date: Thu, 13 Dec 2012 07:18:51 +0000
+Subject: [PATCH 36/94] ZOOKEEPER-1478. Small bug in
+ QuorumTest.testFollowersStartAfterLeader( )
+ (Alexander Shraer via fpj, breed, phunt)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1421095 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt                                        |    3 +++
+ .../test/org/apache/zookeeper/test/QuorumTest.java |   20 +++++++-------------
+ 2 files changed, 10 insertions(+), 13 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index d5e8ab2..b199702 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -16,6 +16,9 @@ BUGFIXES:
+   ZOOKEEPER-1553. Findbugs configuration is missing some dependencies
+   (Sean Busbey via phunt)
+ 
++  ZOOKEEPER-1478. Small bug in QuorumTest.testFollowersStartAfterLeader( )
++  (Alexander Shraer via fpj, breed, phunt)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/test/org/apache/zookeeper/test/QuorumTest.java b/src/java/test/org/apache/zookeeper/test/QuorumTest.java
+index 3ffe82c..85f1759 100644
+--- a/src/java/test/org/apache/zookeeper/test/QuorumTest.java
++++ b/src/java/test/org/apache/zookeeper/test/QuorumTest.java
+@@ -23,6 +23,7 @@ import java.util.Arrays;
+ import java.util.List;
+ import java.util.concurrent.Semaphore;
+ import java.util.concurrent.TimeUnit;
++import java.util.concurrent.TimeoutException;
+ 
+ import org.apache.zookeeper.AsyncCallback;
+ import org.apache.zookeeper.CreateMode;
+@@ -313,22 +314,15 @@ public class QuorumTest extends ZKTestCase {
+         // break the quorum
+         qu.shutdown(index);
+ 
++        // Wait until we disconnect to proceed
++        watcher.waitForDisconnected(CONNECTION_TIMEOUT);
++        
+         // try to reestablish the quorum
+         qu.start(index);
+-        Assert.assertTrue("quorum reestablishment failed",
+-                QuorumBase.waitForServerUp(
+-                        "127.0.0.1:" + qu.getPeer(2).clientPort,
+-                        CONNECTION_TIMEOUT));
+ 
+-        for (int i = 0; i < 30; i++) {
+-            try {
+-                zk.create("/test", "test".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
+-                    CreateMode.PERSISTENT);
+-                break;
+-            } catch(KeeperException.ConnectionLossException e) {
+-                Thread.sleep(1000);
+-            }
+-            // test fails if we still can't connect to the quorum after 30 seconds.
++        try{
++            watcher.waitForConnected(30000);      
++        } catch(TimeoutException e) {
+             Assert.fail("client could not connect to reestablished quorum: giving up after 30+ seconds.");
+         }
+ 
+-- 
+1.7.9.5
+

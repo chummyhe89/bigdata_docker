@@ -1,0 +1,82 @@
+From 1d85365a6f439958d5b90add63bff98672cf51b8 Mon Sep 17 00:00:00 2001
+From: Flavio Paiva Junqueira <fpj@apache.org>
+Date: Sat, 14 Dec 2013 11:23:24 +0000
+Subject: [PATCH 63/94] =?UTF-8?q?ZOOKEEPER-1837.=20Fix=20JMXEnv=20checks=20(?=
+ =?UTF-8?q?potential=20race=20conditions)=20(Germ=C3=A1n=20Blanco=20via=20fp?=
+ =?UTF-8?q?j)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1550923 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt                                        |    3 +++
+ .../test/org/apache/zookeeper/test/ClientBase.java |    3 +--
+ .../test/org/apache/zookeeper/test/JMXEnv.java     |    8 +++++++-
+ 3 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 0468aa7..fe26171 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -92,6 +92,9 @@ BUGFIXES:
+ 
+   ZOOKEEPER-1834. Catch IOException in FileTxnLog (fpj via michim)
+ 
++  ZOOKEEPER-1837. Fix JMXEnv checks (potential race conditions)
++  (Germán Blanco via fpj)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/test/org/apache/zookeeper/test/ClientBase.java b/src/java/test/org/apache/zookeeper/test/ClientBase.java
+index 4c667f8..a15d24d 100644
+--- a/src/java/test/org/apache/zookeeper/test/ClientBase.java
++++ b/src/java/test/org/apache/zookeeper/test/ClientBase.java
+@@ -191,14 +191,13 @@ public abstract class ClientBase extends ZKTestCase {
+             }
+             if (allClients != null) {
+                 allClients.add(zk);
++                JMXEnv.ensureAll("0x" + Long.toHexString(zk.getSessionId()));
+             } else {
+                 // test done - close the zk, not needed
+                 zk.close();
+             }
+         }
+ 
+-        JMXEnv.ensureAll("0x" + Long.toHexString(zk.getSessionId()));
+-
+         return zk;
+     }
+ 
+diff --git a/src/java/test/org/apache/zookeeper/test/JMXEnv.java b/src/java/test/org/apache/zookeeper/test/JMXEnv.java
+index 48a107f..b328428 100644
+--- a/src/java/test/org/apache/zookeeper/test/JMXEnv.java
++++ b/src/java/test/org/apache/zookeeper/test/JMXEnv.java
+@@ -122,16 +122,22 @@ public class JMXEnv {
+      * Note that these are components of the name, and in particular
+      * order matters - you want the more specific name (leafs) specified
+      * before their parent(s) (since names are hierarchical)
++     * It waits in a loop up to 5 seconds before failing if there is a
++     * mismatch.
+      * @param expectedNames
+      * @return
+      * @throws IOException
+      * @throws MalformedObjectNameException
+      */
+     public static Set<ObjectName> ensureOnly(String... expectedNames)
+-        throws IOException
++        throws IOException, InterruptedException
+     {
+         LOG.info("ensureOnly:" + Arrays.toString(expectedNames));
+         Set<ObjectName> beans = ensureAll(expectedNames);
++        for (int i = 0; (i < 50) && (beans.size() != 0); i++) {
++            Thread.sleep(100);
++            beans = ensureAll(expectedNames);
++        }
+         for (ObjectName bean : beans) {
+             LOG.info("unexpected:" + bean.toString());
+         }
+-- 
+1.7.9.5
+

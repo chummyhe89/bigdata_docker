@@ -1,0 +1,30 @@
+From a38f443dea122fe6f64bf4fc44d40da85a66cb5a Mon Sep 17 00:00:00 2001
+From: Patrick Hunt <phunt@cloudera.com>
+Date: Thu, 19 Feb 2015 17:34:45 -0800
+Subject: [PATCH 83/94] CDH-25328 ZooKeeper - Build all C5 components with
+ -source/-target 1.7
+
+---
+ build.xml |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/build.xml b/build.xml
+index d66a8fb..1c3df03 100644
+--- a/build.xml
++++ b/build.xml
+@@ -56,9 +56,10 @@
+     <property name="revision.properties" value="revision.properties" />
+     <property file="${basedir}/src/java/${revision.properties}" />
+ 
+-    <property name="targetJavaVersion" value="1.6"/>
++    <property name="targetJavaVersion" value="1.7"/>
+     <property name="javac.target" value="${targetJavaVersion}" />
+-    <property name="javac.source" value="1.5" />
++    <property name="sourceJavaVersion" value="1.7"/>
++    <property name="javac.source" value="${sourceJavaVersion}" />
+ 
+     <property name="src.dir" value="${basedir}/src" />
+     <property name="java.src.dir" value="${src.dir}/java/main" />
+-- 
+1.7.9.5
+

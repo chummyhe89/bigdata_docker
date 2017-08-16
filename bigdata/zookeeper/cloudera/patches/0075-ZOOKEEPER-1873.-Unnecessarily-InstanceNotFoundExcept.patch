@@ -1,0 +1,50 @@
+From 081bf9531a65e3f4ea45ad338f57428e11b0b482 Mon Sep 17 00:00:00 2001
+From: Michi Mutsuzaki <michim@apache.org>
+Date: Wed, 12 Feb 2014 01:43:10 +0000
+Subject: [PATCH 75/94] ZOOKEEPER-1873. Unnecessarily
+ InstanceNotFoundException is coming when unregister
+ failed jmxbeans (Rakesh R via michim)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1567490 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt                                        |    3 +++
+ .../org/apache/zookeeper/jmx/MBeanRegistry.java    |    4 ++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index ac95f13..ae95e6f 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -124,6 +124,9 @@ BUGFIXES:
+   ZOOKEEPER-1811. The ZooKeeperSaslClient service name principal is
+   hardcoded to "zookeeper" (Harsh J via phunt)
+ 
++  ZOOKEEPER-1873. Unnecessarily InstanceNotFoundException is coming when
++  unregister failed jmxbeans (Rakesh R via michim)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/main/org/apache/zookeeper/jmx/MBeanRegistry.java b/src/java/main/org/apache/zookeeper/jmx/MBeanRegistry.java
+index 0e12d13..895b818 100644
+--- a/src/java/main/org/apache/zookeeper/jmx/MBeanRegistry.java
++++ b/src/java/main/org/apache/zookeeper/jmx/MBeanRegistry.java
+@@ -89,13 +89,13 @@ public class MBeanRegistry {
+             assert path != null;
+         }
+         path = makeFullPath(path, parent);
+-        mapBean2Path.put(bean, path);
+-        mapName2Bean.put(bean.getName(), bean);
+         if(bean.isHidden())
+             return;
+         ObjectName oname = makeObjectName(path, bean);
+         try {
+             mBeanServer.registerMBean(bean, oname);
++            mapBean2Path.put(bean, path);
++            mapName2Bean.put(bean.getName(), bean);
+         } catch (JMException e) {
+             LOG.warn("Failed to register MBean " + bean.getName());
+             throw e;
+-- 
+1.7.9.5
+

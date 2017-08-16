@@ -1,0 +1,216 @@
+From 8c717cf07b68850937f07b8890b31f1055fc48c1 Mon Sep 17 00:00:00 2001
+From: Flavio Paiva Junqueira <fpj@apache.org>
+Date: Fri, 24 Jan 2014 17:06:22 +0000
+Subject: [PATCH 72/94] ZOOKEEPER-1858. JMX checks - potential race conditions
+ while stopping and starting server (Rakesh R via fpj)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1561069 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt                                        |    3 +
+ .../test/org/apache/zookeeper/test/ClientBase.java |   49 ++++++++++++++-
+ .../zookeeper/test/FourLetterWordsQuorumTest.java  |    2 +-
+ .../apache/zookeeper/test/FourLetterWordsTest.java |    2 +-
+ .../test/org/apache/zookeeper/test/JMXEnv.java     |   66 ++++++++++++++++++++
+ 5 files changed, 117 insertions(+), 5 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 8d22e05..dba6d62 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -116,6 +116,9 @@ BUGFIXES:
+   ZOOKEEPER-1837. Fix JMXEnv checks (potential race conditions)
+   (Germán Blanco via fpj)
+ 
++  ZOOKEEPER-1858. JMX checks - potential race conditions while stopping
++  and starting server (Rakesh R via fpj)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/test/org/apache/zookeeper/test/ClientBase.java b/src/java/test/org/apache/zookeeper/test/ClientBase.java
+index fdd037a..ae822be 100644
+--- a/src/java/test/org/apache/zookeeper/test/ClientBase.java
++++ b/src/java/test/org/apache/zookeeper/test/ClientBase.java
+@@ -29,15 +29,20 @@ import java.lang.management.ManagementFactory;
+ import java.lang.management.OperatingSystemMXBean;
+ import java.util.ArrayList;
+ import java.util.Arrays;
++import java.util.Iterator;
+ import java.util.LinkedList;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Map.Entry;
++import java.util.Set;
+ import java.util.concurrent.CountDownLatch;
+ import java.util.concurrent.TimeUnit;
+ import java.util.concurrent.TimeoutException;
+ 
+ import javax.management.MBeanServerConnection;
++import javax.management.ObjectName;
++
++import junit.framework.TestCase;
+ 
+ import org.apache.zookeeper.KeeperException;
+ import org.apache.zookeeper.PortAssignment;
+@@ -191,7 +196,7 @@ public abstract class ClientBase extends ZKTestCase {
+             }
+             if (allClients != null) {
+                 allClients.add(zk);
+-                JMXEnv.ensureAll("0x" + Long.toHexString(zk.getSessionId()));
++                JMXEnv.ensureAll(getHexSessionId(zk.getSessionId()));
+             } else {
+                 // test done - close the zk, not needed
+                 zk.close();
+@@ -445,8 +450,46 @@ public abstract class ClientBase extends ZKTestCase {
+         serverFactory = createNewServerInstance(serverFactory, hostPort,
+                 maxCnxns);
+         startServerInstance(tmpDir, serverFactory, hostPort);
+-        // ensure that only server and data bean are registered
+-        JMXEnv.ensureOnly("InMemoryDataTree", "StandaloneServer_port");
++        // ensure that server and data bean are registered
++        Set<ObjectName> children = JMXEnv.ensureParent("InMemoryDataTree",
++                "StandaloneServer_port");
++        // Remove beans which are related to zk client sessions. Strong
++        // assertions cannot be done for these client sessions because
++        // registeration of these beans with server will happen only on their
++        // respective reconnection interval
++        verifyUnexpectedBeans(children);
++    }
++
++    private void verifyUnexpectedBeans(Set<ObjectName> children) {
++        if (allClients != null) {
++            for (ZooKeeper zkc : allClients) {
++                Iterator<ObjectName> childItr = children.iterator();
++                while (childItr.hasNext()) {
++                    ObjectName clientBean = childItr.next();
++                    if (clientBean.toString().contains(
++                            getHexSessionId(zkc.getSessionId()))) {
++                        LOG.info("found name:" + zkc.getSessionId()
++                                + " client bean:" + clientBean.toString());
++                        childItr.remove();
++                    }
++                }
++            }
++        }
++        for (ObjectName bean : children) {
++            LOG.info("unexpected:" + bean.toString());
++        }
++        TestCase.assertEquals("Unexpected bean exists!", 0, children.size());
++    }
++
++    /**
++     * Returns a string representation of the given long value session id
++     * 
++     * @param sessionId
++     *            long value of session id
++     * @return string representation of session id
++     */
++    protected static String getHexSessionId(long sessionId) {
++        return "0x" + Long.toHexString(sessionId);
+     }
+ 
+     protected void stopServer() throws Exception {
+diff --git a/src/java/test/org/apache/zookeeper/test/FourLetterWordsQuorumTest.java b/src/java/test/org/apache/zookeeper/test/FourLetterWordsQuorumTest.java
+index d9a6713..49d90f7 100644
+--- a/src/java/test/org/apache/zookeeper/test/FourLetterWordsQuorumTest.java
++++ b/src/java/test/org/apache/zookeeper/test/FourLetterWordsQuorumTest.java
+@@ -55,7 +55,7 @@ public class FourLetterWordsQuorumTest extends QuorumBase {
+             verify(hp, "cons", "queued");
+ 
+             TestableZooKeeper zk = createClient(hp);
+-            String sid = "0x" + Long.toHexString(zk.getSessionId());
++            String sid = getHexSessionId(zk.getSessionId());
+ 
+             verify(hp, "stat", "queued");
+             verify(hp, "srvr", "Outstanding");
+diff --git a/src/java/test/org/apache/zookeeper/test/FourLetterWordsTest.java b/src/java/test/org/apache/zookeeper/test/FourLetterWordsTest.java
+index 1ff198a..281b178 100644
+--- a/src/java/test/org/apache/zookeeper/test/FourLetterWordsTest.java
++++ b/src/java/test/org/apache/zookeeper/test/FourLetterWordsTest.java
+@@ -57,7 +57,7 @@ public class FourLetterWordsTest extends ClientBase {
+         verify("cons", "queued");
+ 
+         TestableZooKeeper zk = createClient();
+-        String sid = "0x" + Long.toHexString(zk.getSessionId());
++        String sid = getHexSessionId(zk.getSessionId());
+ 
+         verify("stat", "queued");
+         verify("srvr", "Outstanding");
+diff --git a/src/java/test/org/apache/zookeeper/test/JMXEnv.java b/src/java/test/org/apache/zookeeper/test/JMXEnv.java
+index 2f955ac..d1c9e23 100644
+--- a/src/java/test/org/apache/zookeeper/test/JMXEnv.java
++++ b/src/java/test/org/apache/zookeeper/test/JMXEnv.java
+@@ -204,4 +204,70 @@ public class JMXEnv {
+         }
+     }
+ 
++    /**
++     * Ensure that the specified parent names are registered. Note that these
++     * are components of the name. It waits in a loop up to 60 seconds before
++     * failing if there is a mismatch. This will return the beans which are not
++     * matched.
++     * 
++     * {@link https://issues.apache.org/jira/browse/ZOOKEEPER-1858}
++     * 
++     * @param expectedNames
++     *            - expected beans
++     * @return the beans which are not matched with the given expected names
++     * 
++     * @throws IOException
++     * @throws InterruptedException
++     * 
++     */
++    public static Set<ObjectName> ensureParent(String... expectedNames)
++            throws IOException, InterruptedException {
++        LOG.info("ensureParent:" + Arrays.toString(expectedNames));
++
++        Set<ObjectName> beans;
++        int nTry = 0;
++        Set<ObjectName> found = new HashSet<ObjectName>();
++        do {
++            if (nTry++ > 0) {
++                Thread.sleep(500);
++            }
++            try {
++                beans = conn().queryNames(
++                        new ObjectName(CommonNames.DOMAIN + ":*"), null);
++            } catch (MalformedObjectNameException e) {
++                throw new RuntimeException(e);
++            }
++            found.clear();
++            for (String name : expectedNames) {
++                LOG.info("expect:" + name);
++                for (ObjectName bean : beans) {
++                    // check the existence of name in bean
++                    if (compare(bean.toString(), name)) {
++                        LOG.info("found:" + name + " " + bean);
++                        found.add(bean);
++                        break;
++                    }
++                }
++                beans.removeAll(found);
++            }
++        } while (expectedNames.length != found.size() && nTry < 120);
++        TestCase.assertEquals("expected " + Arrays.toString(expectedNames),
++                expectedNames.length, found.size());
++        return beans;
++    }
++
++    /**
++     * Comparing that the given name exists in the bean. For component beans,
++     * the component name will be present at the end of the bean name
++     * 
++     * For example 'StandaloneServer' will present in the bean name like
++     * 'org.apache.ZooKeeperService:name0=StandaloneServer_port-1'
++     */
++    private static boolean compare(String bean, String name) {
++        String[] names = bean.split("=");
++        if (names.length > 0 && names[names.length - 1].contains(name)) {
++            return true;
++        }
++        return false;
++    }
+ }
+-- 
+1.7.9.5
+

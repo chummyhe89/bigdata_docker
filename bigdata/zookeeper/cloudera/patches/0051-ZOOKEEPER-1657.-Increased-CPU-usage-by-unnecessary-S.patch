@@ -1,0 +1,191 @@
+From 232bd22ec38397c0debcec26b4894f6de9452657 Mon Sep 17 00:00:00 2001
+From: Flavio Paiva Junqueira <fpj@apache.org>
+Date: Wed, 18 Sep 2013 10:24:00 +0000
+Subject: [PATCH 51/94] ZOOKEEPER-1657. Increased CPU usage by unnecessary
+ SASL checks (Philip K. Warren via fpj)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1524355 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt                                        |    2 +
+ src/java/main/org/apache/zookeeper/ClientCnxn.java |   39 +++++++-----
+ .../zookeeper/client/ZooKeeperSaslClient.java      |   15 +++++
+ .../org/apache/zookeeper/test/SaslClientTest.java  |   62 ++++++++++++++++++++
+ 4 files changed, 102 insertions(+), 16 deletions(-)
+ create mode 100644 src/java/test/org/apache/zookeeper/test/SaslClientTest.java
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index fa09fa3..cfdc692 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -62,6 +62,8 @@ BUGFIXES:
+   ZOOKEEPER-1751. ClientCnxn#run could miss the second ping or connection get
+   dropped before a ping. (Jeffrey Zhong  via mahadev)
+ 
++  ZOOKEEPER-1657. Increased CPU usage by unnecessary SASL checks (Philip K. Warren via fpj)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/main/org/apache/zookeeper/ClientCnxn.java b/src/java/main/org/apache/zookeeper/ClientCnxn.java
+index 43da699..c29b2c8 100644
+--- a/src/java/main/org/apache/zookeeper/ClientCnxn.java
++++ b/src/java/main/org/apache/zookeeper/ClientCnxn.java
+@@ -939,19 +939,21 @@ public class ClientCnxn {
+ 
+             setName(getName().replaceAll("\\(.*\\)",
+                     "(" + addr.getHostName() + ":" + addr.getPort() + ")"));
+-            try {
+-                zooKeeperSaslClient = new ZooKeeperSaslClient("zookeeper/"+addr.getHostName());
+-            } catch (LoginException e) {
+-                // An authentication error occurred when the SASL client tried to initialize:
+-                // for Kerberos this means that the client failed to authenticate with the KDC.
+-                // This is different from an authentication error that occurs during communication
+-                // with the Zookeeper server, which is handled below.
+-                LOG.warn("SASL configuration failed: " + e + " Will continue connection to Zookeeper server without "
+-                  + "SASL authentication, if Zookeeper server allows it.");
+-                eventThread.queueEvent(new WatchedEvent(
+-                  Watcher.Event.EventType.None,
+-                  Watcher.Event.KeeperState.AuthFailed, null));
+-                saslLoginFailed = true;
++            if (ZooKeeperSaslClient.isEnabled()) {
++                try {
++                    zooKeeperSaslClient = new ZooKeeperSaslClient("zookeeper/"+addr.getHostName());
++                } catch (LoginException e) {
++                    // An authentication error occurred when the SASL client tried to initialize:
++                    // for Kerberos this means that the client failed to authenticate with the KDC.
++                    // This is different from an authentication error that occurs during communication
++                    // with the Zookeeper server, which is handled below.
++                    LOG.warn("SASL configuration failed: " + e + " Will continue connection to Zookeeper server without "
++                      + "SASL authentication, if Zookeeper server allows it.");
++                    eventThread.queueEvent(new WatchedEvent(
++                      Watcher.Event.EventType.None,
++                      Watcher.Event.KeeperState.AuthFailed, null));
++                    saslLoginFailed = true;
++                }
+             }
+             logStartConnect(addr);
+ 
+@@ -1230,18 +1232,23 @@ public class ClientCnxn {
+         }
+ 
+         public boolean clientTunneledAuthenticationInProgress() {
+-            // 1. SASL login failed.
++            // 1. SASL client is disabled.
++            if (!ZooKeeperSaslClient.isEnabled()) {
++                return false;
++            }
++
++            // 2. SASL login failed.
+             if (saslLoginFailed == true) {
+                 return false;
+             }
+ 
+-            // 2. SendThread has not created the authenticating object yet,
++            // 3. SendThread has not created the authenticating object yet,
+             // therefore authentication is (at the earliest stage of being) in progress.
+             if (zooKeeperSaslClient == null) {
+                 return true;
+             }
+ 
+-            // 3. authenticating object exists, so ask it for its progress.
++            // 4. authenticating object exists, so ask it for its progress.
+             return zooKeeperSaslClient.clientTunneledAuthenticationInProgress();
+         }
+ 
+diff --git a/src/java/main/org/apache/zookeeper/client/ZooKeeperSaslClient.java b/src/java/main/org/apache/zookeeper/client/ZooKeeperSaslClient.java
+index 82dcf57..b07ae6c 100644
+--- a/src/java/main/org/apache/zookeeper/client/ZooKeeperSaslClient.java
++++ b/src/java/main/org/apache/zookeeper/client/ZooKeeperSaslClient.java
+@@ -56,6 +56,21 @@ import javax.security.sasl.SaslException;
+  */
+ public class ZooKeeperSaslClient {
+     public static final String LOGIN_CONTEXT_NAME_KEY = "zookeeper.sasl.clientconfig";
++    public static final String ENABLE_CLIENT_SASL_KEY = "zookeeper.sasl.client";
++    public static final String ENABLE_CLIENT_SASL_DEFAULT = "true";
++
++    /**
++     * Returns true if the SASL client is enabled. By default, the client
++     * is enabled but can be disabled by setting the system property
++     * <code>zookeeper.sasl.client</code> to <code>false</code>. See
++     * ZOOKEEPER-1657 for more information.
++     *
++     * @return If the SASL client is enabled.
++     */
++    public static boolean isEnabled() {
++        return Boolean.valueOf(System.getProperty(ENABLE_CLIENT_SASL_KEY, ENABLE_CLIENT_SASL_DEFAULT));
++    }
++
+     private static final Logger LOG = LoggerFactory.getLogger(ZooKeeperSaslClient.class);
+     private static Login login = null;
+     private SaslClient saslClient;
+diff --git a/src/java/test/org/apache/zookeeper/test/SaslClientTest.java b/src/java/test/org/apache/zookeeper/test/SaslClientTest.java
+new file mode 100644
+index 0000000..8213abc
+--- /dev/null
++++ b/src/java/test/org/apache/zookeeper/test/SaslClientTest.java
+@@ -0,0 +1,62 @@
++/**
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package org.apache.zookeeper.test;
++
++import org.apache.zookeeper.ZKTestCase;
++import org.apache.zookeeper.client.ZooKeeperSaslClient;
++import org.junit.After;
++import org.junit.Assert;
++import org.junit.Before;
++import org.junit.Test;
++
++import java.util.Arrays;
++
++public class SaslClientTest extends ZKTestCase {
++
++    private String existingPropertyValue = null;
++
++    @Before
++    public void setUp() {
++        existingPropertyValue = System.getProperty(ZooKeeperSaslClient.ENABLE_CLIENT_SASL_KEY);
++    }
++
++    @After
++    public void tearDown() {
++        // Restore the System property if it was set previously
++        if (existingPropertyValue != null) {
++            System.setProperty(ZooKeeperSaslClient.ENABLE_CLIENT_SASL_KEY, existingPropertyValue);
++        }
++    }
++
++    @Test
++    public void testSaslClientDisabled() {
++        System.clearProperty(ZooKeeperSaslClient.ENABLE_CLIENT_SASL_KEY);
++        Assert.assertTrue("SASL client disabled", ZooKeeperSaslClient.isEnabled());
++
++        for (String value : Arrays.asList("true", "TRUE")) {
++            System.setProperty(ZooKeeperSaslClient.ENABLE_CLIENT_SASL_KEY, value);
++            Assert.assertTrue("SASL client disabled", ZooKeeperSaslClient.isEnabled());
++        }
++
++        for (String value : Arrays.asList("false", "FALSE")) {
++            System.setProperty(ZooKeeperSaslClient.ENABLE_CLIENT_SASL_KEY, value);
++            Assert.assertFalse("SASL client disabled", ZooKeeperSaslClient.isEnabled());
++        }
++    }
++}
+-- 
+1.7.9.5
+

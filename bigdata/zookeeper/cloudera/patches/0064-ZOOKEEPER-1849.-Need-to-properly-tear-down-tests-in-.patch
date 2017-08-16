@@ -1,0 +1,336 @@
+From 33d1a7b0536a30541067a37a316af55ebb7b850a Mon Sep 17 00:00:00 2001
+From: Flavio Paiva Junqueira <fpj@apache.org>
+Date: Thu, 19 Dec 2013 22:36:08 +0000
+Subject: [PATCH 64/94] =?UTF-8?q?ZOOKEEPER-1849.=20Need=20to=20properly=20te?=
+ =?UTF-8?q?ar=20down=20tests=20in=20various=20=20=20cases=20(Germ=C3=A1n=20v?=
+ =?UTF-8?q?ia=20fpj)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1552447 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+	src/java/test/org/apache/zookeeper/test/LoadFromLogTest.java
+---
+ CHANGES.txt                                        |    4 ++++
+ .../org/apache/zookeeper/JUnit4ZKTestRunner.java   |    8 ++++++++
+ .../test/org/apache/zookeeper/server/CRCTest.java  |    1 +
+ .../org/apache/zookeeper/test/ACLCountTest.java    |    4 ++--
+ .../test/org/apache/zookeeper/test/ACLTest.java    |    5 +++--
+ .../apache/zookeeper/test/ClientPortBindTest.java  |    1 +
+ .../apache/zookeeper/test/InvalidSnapshotTest.java |    1 +
+ .../org/apache/zookeeper/test/LoadFromLogTest.java |    5 ++++-
+ .../org/apache/zookeeper/test/MaxCnxnsTest.java    |   12 +++++++++++-
+ .../test/org/apache/zookeeper/test/OOMTest.java    |    1 +
+ .../org/apache/zookeeper/test/PurgeTxnTest.java    |    1 +
+ .../org/apache/zookeeper/test/RecoveryTest.java    |    3 +++
+ .../apache/zookeeper/test/RepeatStartupTest.java   |    1 +
+ .../zookeeper/test/RestoreCommittedLogTest.java    |    2 ++
+ .../org/apache/zookeeper/test/SessionTest.java     |    4 +++-
+ 15 files changed, 46 insertions(+), 7 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index fe26171..021ed90 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -95,6 +95,10 @@ BUGFIXES:
+   ZOOKEEPER-1837. Fix JMXEnv checks (potential race conditions)
+   (Germán Blanco via fpj)
+ 
++  ZOOKEEPER-1849. Need to properly tear down tests in various
++  cases (Germán via fpj) 
++
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/test/org/apache/zookeeper/JUnit4ZKTestRunner.java b/src/java/test/org/apache/zookeeper/JUnit4ZKTestRunner.java
+index 188c9f7..588dcd1 100644
+--- a/src/java/test/org/apache/zookeeper/JUnit4ZKTestRunner.java
++++ b/src/java/test/org/apache/zookeeper/JUnit4ZKTestRunner.java
+@@ -50,6 +50,14 @@ public class JUnit4ZKTestRunner extends BlockJUnit4ClassRunner {
+             LOG.info("RUNNING TEST METHOD " + name);
+             try {
+                 super.evaluate();
++                Runtime rt = Runtime.getRuntime();
++                long usedKB = (rt.totalMemory() - rt.freeMemory()) / 1024;
++                LOG.info("Memory used {}", usedKB);
++                ThreadGroup tg = Thread.currentThread().getThreadGroup();
++                while (tg.getParent() != null) {
++                    tg = tg.getParent();
++                }
++                LOG.info("Number of threads {}", tg.activeCount());
+             } catch (Throwable t) {
+                 LOG.info("TEST METHOD FAILED " + name, t);
+                 throw t;
+diff --git a/src/java/test/org/apache/zookeeper/server/CRCTest.java b/src/java/test/org/apache/zookeeper/server/CRCTest.java
+index 36f1c62..2b7fb46 100644
+--- a/src/java/test/org/apache/zookeeper/server/CRCTest.java
++++ b/src/java/test/org/apache/zookeeper/server/CRCTest.java
+@@ -131,6 +131,7 @@ public class CRCTest extends ZKTestCase implements Watcher {
+             zk.close();
+         }
+         f.shutdown();
++        zks.shutdown();
+         Assert.assertTrue("waiting for server down",
+                    ClientBase.waitForServerDown(HOSTPORT,
+                            ClientBase.CONNECTION_TIMEOUT));
+diff --git a/src/java/test/org/apache/zookeeper/test/ACLCountTest.java b/src/java/test/org/apache/zookeeper/test/ACLCountTest.java
+index 772dc92..88b8869 100644
+--- a/src/java/test/org/apache/zookeeper/test/ACLCountTest.java
++++ b/src/java/test/org/apache/zookeeper/test/ACLCountTest.java
+@@ -110,8 +110,8 @@ public class ACLCountTest extends ZKTestCase implements Watcher {
+           Assert.assertTrue(false);
+         }
+ 
+-        Assert.assertTrue(true);
+-
++        f.shutdown();
++        zks.shutdown();
+     }
+ 
+ 
+diff --git a/src/java/test/org/apache/zookeeper/test/ACLTest.java b/src/java/test/org/apache/zookeeper/test/ACLTest.java
+index 51ef4f9..793265c 100644
+--- a/src/java/test/org/apache/zookeeper/test/ACLTest.java
++++ b/src/java/test/org/apache/zookeeper/test/ACLTest.java
+@@ -71,7 +71,7 @@ public class ACLTest extends ZKTestCase implements Watcher {
+             }
+         } finally {
+             f.shutdown();
+-
++            zks.shutdown();
+             Assert.assertTrue("waiting for server down",
+                     ClientBase.waitForServerDown(HOSTPORT,
+                             ClientBase.CONNECTION_TIMEOUT));
+@@ -122,6 +122,7 @@ public class ACLTest extends ZKTestCase implements Watcher {
+         } finally {
+             // now shutdown the server and restart it
+             f.shutdown();
++            zks.shutdown();
+             Assert.assertTrue("waiting for server down",
+                     ClientBase.waitForServerDown(HOSTPORT, CONNECTION_TIMEOUT));
+         }
+@@ -157,7 +158,7 @@ public class ACLTest extends ZKTestCase implements Watcher {
+             zk.close();
+         } finally {
+             f.shutdown();
+-    
++            zks.shutdown();
+             Assert.assertTrue("waiting for server down",
+                        ClientBase.waitForServerDown(HOSTPORT,
+                                ClientBase.CONNECTION_TIMEOUT));
+diff --git a/src/java/test/org/apache/zookeeper/test/ClientPortBindTest.java b/src/java/test/org/apache/zookeeper/test/ClientPortBindTest.java
+index dede0cc..bf83f14 100644
+--- a/src/java/test/org/apache/zookeeper/test/ClientPortBindTest.java
++++ b/src/java/test/org/apache/zookeeper/test/ClientPortBindTest.java
+@@ -99,6 +99,7 @@ public class ClientPortBindTest extends ZKTestCase implements Watcher {
+             zk.close();
+         } finally {
+             f.shutdown();
++            zks.shutdown();
+ 
+             Assert.assertTrue("waiting for server down",
+                        ClientBase.waitForServerDown(HOSTPORT,
+diff --git a/src/java/test/org/apache/zookeeper/test/InvalidSnapshotTest.java b/src/java/test/org/apache/zookeeper/test/InvalidSnapshotTest.java
+index 191260b..c5a7b4f 100644
+--- a/src/java/test/org/apache/zookeeper/test/InvalidSnapshotTest.java
++++ b/src/java/test/org/apache/zookeeper/test/InvalidSnapshotTest.java
+@@ -107,6 +107,7 @@ public class InvalidSnapshotTest extends ZKTestCase implements Watcher {
+             zk.close();
+         }
+         f.shutdown();
++        zks.shutdown();
+         Assert.assertTrue("waiting for server down",
+                    ClientBase.waitForServerDown(HOSTPORT,
+                            ClientBase.CONNECTION_TIMEOUT));
+diff --git a/src/java/test/org/apache/zookeeper/test/LoadFromLogTest.java b/src/java/test/org/apache/zookeeper/test/LoadFromLogTest.java
+index 7521deb..8dc4448 100644
+--- a/src/java/test/org/apache/zookeeper/test/LoadFromLogTest.java
++++ b/src/java/test/org/apache/zookeeper/test/LoadFromLogTest.java
+@@ -117,6 +117,7 @@ public class LoadFromLogTest extends ZKTestCase implements  Watcher {
+         }while(itr.next());
+ 
+         Assert.assertTrue("processed all transactions. " + expectedZxid + " == " + TOTAL_TRANSACTIONS, (expectedZxid == TOTAL_TRANSACTIONS));
++        zks.shutdown();
+     }
+ 
+ 
+@@ -339,6 +340,7 @@ public class LoadFromLogTest extends ZKTestCase implements  Watcher {
+ 				+ " expected " + NUM_MESSAGES,
+ 				(children.length == NUM_MESSAGES));
+ 		f.shutdown();
++                zks.shutdown();
+ 	}
+ 
+     /**
+@@ -391,6 +393,7 @@ public class LoadFromLogTest extends ZKTestCase implements  Watcher {
+                 .waitForServerUp(HOSTPORT, CONNECTION_TIMEOUT));
+ 
+         f.shutdown();
++        zks.shutdown();
+     }
+ 
+     /**
+@@ -496,4 +499,4 @@ public class LoadFromLogTest extends ZKTestCase implements  Watcher {
+         }
+         return zk;
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/src/java/test/org/apache/zookeeper/test/MaxCnxnsTest.java b/src/java/test/org/apache/zookeeper/test/MaxCnxnsTest.java
+index 38e84fa..0a31ac9 100644
+--- a/src/java/test/org/apache/zookeeper/test/MaxCnxnsTest.java
++++ b/src/java/test/org/apache/zookeeper/test/MaxCnxnsTest.java
+@@ -51,6 +51,7 @@ public class MaxCnxnsTest extends ClientBase {
+         }
+ 
+         public void run() {
++            SocketChannel sChannel = null;
+             try {
+                 /*
+                  * For future unwary socket programmers: although connect 'blocks' it
+@@ -58,7 +59,7 @@ public class MaxCnxnsTest extends ClientBase {
+                  * you can not assume that all the sockets are connected at the end of
+                  * this for loop.
+                  */
+-                SocketChannel sChannel = SocketChannel.open();
++                sChannel = SocketChannel.open();
+                 sChannel.connect(new InetSocketAddress(host,port));
+                 // Construct a connection request
+                 ConnectRequest conReq = new ConnectRequest(0, 0,
+@@ -97,6 +98,15 @@ public class MaxCnxnsTest extends ClientBase {
+             catch (IOException io) {
+                 // "Connection reset by peer"
+             }
++            finally {
++                if (sChannel != null) {
++                    try {
++                        sChannel.close();
++                    }
++                    catch (Exception e) {
++                    }
++                }
++            }
+         }
+     }
+ 
+diff --git a/src/java/test/org/apache/zookeeper/test/OOMTest.java b/src/java/test/org/apache/zookeeper/test/OOMTest.java
+index 808f7d1..465df98 100644
+--- a/src/java/test/org/apache/zookeeper/test/OOMTest.java
++++ b/src/java/test/org/apache/zookeeper/test/OOMTest.java
+@@ -98,6 +98,7 @@ public class OOMTest extends ZKTestCase implements Watcher {
+         hog.get(0)[0] = (byte) 1;
+ 
+         f.shutdown();
++        zks.shutdown();
+         Assert.assertTrue("waiting for server down",
+                    ClientBase.waitForServerDown("127.0.0.1:" + PORT,
+                                                 CONNECTION_TIMEOUT));
+diff --git a/src/java/test/org/apache/zookeeper/test/PurgeTxnTest.java b/src/java/test/org/apache/zookeeper/test/PurgeTxnTest.java
+index 8c4c926..2f8fec5 100644
+--- a/src/java/test/org/apache/zookeeper/test/PurgeTxnTest.java
++++ b/src/java/test/org/apache/zookeeper/test/PurgeTxnTest.java
+@@ -78,6 +78,7 @@ public class PurgeTxnTest extends ZKTestCase implements  Watcher {
+             }
+         }
+         Assert.assertTrue("exactly 3 snapshots ", (numSnaps == 3));
++        zks.shutdown();
+     }
+ 
+     public void process(WatchedEvent event) {
+diff --git a/src/java/test/org/apache/zookeeper/test/RecoveryTest.java b/src/java/test/org/apache/zookeeper/test/RecoveryTest.java
+index 2127e98..c084a68 100644
+--- a/src/java/test/org/apache/zookeeper/test/RecoveryTest.java
++++ b/src/java/test/org/apache/zookeeper/test/RecoveryTest.java
+@@ -105,6 +105,7 @@ public class RecoveryTest extends ZKTestCase implements Watcher {
+             }
+ 
+             f.shutdown();
++            zks.shutdown();
+             Assert.assertTrue("waiting for server down",
+                        ClientBase.waitForServerDown(HOSTPORT,
+                                           CONNECTION_TIMEOUT));
+@@ -142,6 +143,7 @@ public class RecoveryTest extends ZKTestCase implements Watcher {
+                 }
+             }
+             f.shutdown();
++            zks.shutdown();
+ 
+             Assert.assertTrue("waiting for server down",
+                        ClientBase.waitForServerDown(HOSTPORT,
+@@ -181,6 +183,7 @@ public class RecoveryTest extends ZKTestCase implements Watcher {
+             zk.close();
+ 
+             f.shutdown();
++            zks.shutdown();
+ 
+             Assert.assertTrue("waiting for server down",
+                        ClientBase.waitForServerDown(HOSTPORT,
+diff --git a/src/java/test/org/apache/zookeeper/test/RepeatStartupTest.java b/src/java/test/org/apache/zookeeper/test/RepeatStartupTest.java
+index 3421004..f714a2c 100644
+--- a/src/java/test/org/apache/zookeeper/test/RepeatStartupTest.java
++++ b/src/java/test/org/apache/zookeeper/test/RepeatStartupTest.java
+@@ -60,6 +60,7 @@ public class RepeatStartupTest extends ZKTestCase {
+                    ClientBase.waitForServerUp("127.0.0.1:" + PORT,
+                            QuorumTest.CONNECTION_TIMEOUT));
+         factory.shutdown();
++        zks.shutdown();
+         Assert.assertTrue("waiting for server down",
+                    ClientBase.waitForServerDown("127.0.0.1:" + PORT,
+                                                 QuorumTest.CONNECTION_TIMEOUT));
+diff --git a/src/java/test/org/apache/zookeeper/test/RestoreCommittedLogTest.java b/src/java/test/org/apache/zookeeper/test/RestoreCommittedLogTest.java
+index b06ce53..d47bbf4 100644
+--- a/src/java/test/org/apache/zookeeper/test/RestoreCommittedLogTest.java
++++ b/src/java/test/org/apache/zookeeper/test/RestoreCommittedLogTest.java
+@@ -72,6 +72,7 @@ public class RestoreCommittedLogTest extends ZKTestCase implements  Watcher {
+             zk.close();
+         }
+         f.shutdown();
++        zks.shutdown();
+         Assert.assertTrue("waiting for server to shutdown",
+                 ClientBase.waitForServerDown(HOSTPORT, CONNECTION_TIMEOUT));
+ 
+@@ -82,6 +83,7 @@ public class RestoreCommittedLogTest extends ZKTestCase implements  Watcher {
+         int logsize = committedLog.size();
+         LOG.info("committedLog size = " + logsize);
+         Assert.assertTrue("log size != 0", (logsize != 0));
++        zks.shutdown();
+     }
+ 
+     public void process(WatchedEvent event) {
+diff --git a/src/java/test/org/apache/zookeeper/test/SessionTest.java b/src/java/test/org/apache/zookeeper/test/SessionTest.java
+index df9bd54..0740ebb 100644
+--- a/src/java/test/org/apache/zookeeper/test/SessionTest.java
++++ b/src/java/test/org/apache/zookeeper/test/SessionTest.java
+@@ -57,6 +57,7 @@ public class SessionTest extends ZKTestCase {
+             PortAssignment.unique();
+     
+     private ServerCnxnFactory serverFactory;
++    private ZooKeeperServer zs;
+ 
+     private CountDownLatch startSignal;
+ 
+@@ -71,7 +72,7 @@ public class SessionTest extends ZKTestCase {
+         }
+ 
+         ClientBase.setupTestEnv();
+-        ZooKeeperServer zs = new ZooKeeperServer(tmpDir, tmpDir, TICK_TIME);
++        zs = new ZooKeeperServer(tmpDir, tmpDir, TICK_TIME);
+ 
+         final int PORT = Integer.parseInt(HOSTPORT.split(":")[1]);
+         serverFactory = ServerCnxnFactory.createFactory(PORT, -1);
+@@ -85,6 +86,7 @@ public class SessionTest extends ZKTestCase {
+     @After
+     public void tearDown() throws Exception {
+         serverFactory.shutdown();
++        zs.shutdown();
+         Assert.assertTrue("waiting for server down",
+                    ClientBase.waitForServerDown(HOSTPORT,
+                                                 CONNECTION_TIMEOUT));
+-- 
+1.7.9.5
+

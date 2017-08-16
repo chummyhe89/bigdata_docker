@@ -1,0 +1,74 @@
+From c3ed20fdbcfe92cf648197e9c2397527287782c4 Mon Sep 17 00:00:00 2001
+From: Andrew Bayer <andrew@cloudera.com>
+Date: Wed, 12 Jun 2013 16:47:54 -0700
+Subject: [PATCH 20/94] Preparing for CDH5.0.0 development
+
+---
+ cloudera-pom.xml                           |    4 ++--
+ cloudera/maven-packaging/pom.xml           |    4 ++--
+ cloudera/maven-packaging/zookeeper/pom.xml |    4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/cloudera-pom.xml b/cloudera-pom.xml
+index 5e68ccd..593bacb 100644
+--- a/cloudera-pom.xml
++++ b/cloudera-pom.xml
+@@ -21,13 +21,13 @@
+   <parent>
+     <groupId>com.cloudera.cdh</groupId>
+     <artifactId>zookeeper-root</artifactId>
+-    <version>3.4.5-cdh4.4.0-SNAPSHOT</version>
++    <version>3.4.5-cdh5.0.0-SNAPSHOT</version>
+     <relativePath>cloudera/maven-packaging/pom.xml</relativePath>
+   </parent>
+   
+   <groupId>com.cloudera.cdh</groupId>
+   <artifactId>zookeeper-ant</artifactId>
+-  <version>3.4.5-cdh4.4.0-SNAPSHOT</version>
++  <version>3.4.5-cdh5.0.0-SNAPSHOT</version>
+   <packaging>pom</packaging>
+   
+   <scm>
+diff --git a/cloudera/maven-packaging/pom.xml b/cloudera/maven-packaging/pom.xml
+index 51f9831..f945205 100644
+--- a/cloudera/maven-packaging/pom.xml
++++ b/cloudera/maven-packaging/pom.xml
+@@ -21,13 +21,13 @@
+   <parent>
+     <groupId>com.cloudera.cdh</groupId>
+     <artifactId>cdh-root</artifactId>
+-    <version>4.4.0-SNAPSHOT</version>
++    <version>5.0.0-SNAPSHOT</version>
+     <relativePath>../../../../../pom.xml</relativePath>
+   </parent>
+   
+   <groupId>com.cloudera.cdh</groupId>
+   <artifactId>zookeeper-root</artifactId>
+-  <version>3.4.5-cdh4.4.0-SNAPSHOT</version>
++  <version>3.4.5-cdh5.0.0-SNAPSHOT</version>
+   <packaging>pom</packaging>
+   
+   <name>CDH ZooKeeper root</name>
+diff --git a/cloudera/maven-packaging/zookeeper/pom.xml b/cloudera/maven-packaging/zookeeper/pom.xml
+index e166f55..02bf451 100644
+--- a/cloudera/maven-packaging/zookeeper/pom.xml
++++ b/cloudera/maven-packaging/zookeeper/pom.xml
+@@ -23,13 +23,13 @@
+   <parent>
+     <groupId>com.cloudera.cdh</groupId>
+     <artifactId>zookeeper-root</artifactId>
+-    <version>3.4.5-cdh4.4.0-SNAPSHOT</version>
++    <version>3.4.5-cdh5.0.0-SNAPSHOT</version>
+     <relativePath>../pom.xml</relativePath>
+   </parent>
+   
+   <groupId>org.apache.zookeeper</groupId>
+   <artifactId>zookeeper</artifactId>
+-  <version>3.4.5-cdh4.4.0-SNAPSHOT</version>
++  <version>3.4.5-cdh5.0.0-SNAPSHOT</version>
+   <packaging>pom</packaging>
+ 
+   <dependencies>
+-- 
+1.7.9.5
+

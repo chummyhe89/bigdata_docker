@@ -1,0 +1,119 @@
+From bf5f7a94beb5f8d4baba80517c9cb36f288b63bf Mon Sep 17 00:00:00 2001
+From: Michi Mutsuzaki <michim@apache.org>
+Date: Wed, 25 Mar 2015 07:38:44 +0000
+Subject: [PATCH 87/94] ZOOKEEPER-2146 BinaryInputArchive readString should
+ check length before allocating memory (Hongchao Deng
+ via michim)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/trunk@1669060 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ .../main/org/apache/jute/BinaryInputArchive.java   |   20 +++++----
+ .../org/apache/jute/BinaryInputArchiveTest.java    |   43 ++++++++++++++++++++
+ 2 files changed, 55 insertions(+), 8 deletions(-)
+ create mode 100644 src/java/test/org/apache/jute/BinaryInputArchiveTest.java
+
+diff --git a/src/java/main/org/apache/jute/BinaryInputArchive.java b/src/java/main/org/apache/jute/BinaryInputArchive.java
+index 6b2cb46..7722bff 100644
+--- a/src/java/main/org/apache/jute/BinaryInputArchive.java
++++ b/src/java/main/org/apache/jute/BinaryInputArchive.java
+@@ -27,7 +27,7 @@ import java.io.InputStream;
+  *
+  */
+ public class BinaryInputArchive implements InputArchive {
+-    
++    static public final String UNREASONBLE_LENGTH= "Unreasonable length = ";
+     private DataInput in;
+     
+     static public BinaryInputArchive getArchive(InputStream strm) {
+@@ -78,6 +78,7 @@ public class BinaryInputArchive implements InputArchive {
+     public String readString(String tag) throws IOException {
+     	int len = in.readInt();
+     	if (len == -1) return null;
++        checkLength(len);
+     	byte b[] = new byte[len];
+     	in.readFully(b);
+     	return new String(b, "UTF8");
+@@ -88,12 +89,7 @@ public class BinaryInputArchive implements InputArchive {
+     public byte[] readBuffer(String tag) throws IOException {
+         int len = readInt(tag);
+         if (len == -1) return null;
+-        // Since this is a rough sanity check, add some padding to maxBuffer to
+-        // make up for extra fields, etc. (otherwise e.g. clients may be able to
+-        // write buffers larger than we can read from disk!)
+-        if (len < 0 || len > maxBuffer + 1024) {
+-            throw new IOException("Unreasonable length = " + len);
+-        }
++        checkLength(len);
+         byte[] arr = new byte[len];
+         in.readFully(arr);
+         return arr;
+@@ -122,5 +118,13 @@ public class BinaryInputArchive implements InputArchive {
+     }
+     
+     public void endMap(String tag) throws IOException {}
+-    
++
++    // Since this is a rough sanity check, add some padding to maxBuffer to
++    // make up for extra fields, etc. (otherwise e.g. clients may be able to
++    // write buffers larger than we can read from disk!)
++    private void checkLength(int len) throws IOException {
++        if (len < 0 || len > maxBuffer + 1024) {
++            throw new IOException(UNREASONBLE_LENGTH + len);
++        }
++    }
+ }
+diff --git a/src/java/test/org/apache/jute/BinaryInputArchiveTest.java b/src/java/test/org/apache/jute/BinaryInputArchiveTest.java
+new file mode 100644
+index 0000000..a8d067d
+--- /dev/null
++++ b/src/java/test/org/apache/jute/BinaryInputArchiveTest.java
+@@ -0,0 +1,43 @@
++/**
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
++ * <p/>
++ * http://www.apache.org/licenses/LICENSE-2.0
++ * <p/>
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package org.apache.jute;
++
++import junit.framework.Assert;
++import org.junit.Test;
++
++import java.io.ByteArrayInputStream;
++import java.io.IOException;
++
++
++public class BinaryInputArchiveTest {
++
++    @Test
++    public void testReadStringCheckLength() {
++        byte[] buf = new byte[]{
++                Byte.MAX_VALUE, Byte.MAX_VALUE, Byte.MAX_VALUE, Byte.MAX_VALUE};
++        ByteArrayInputStream is = new ByteArrayInputStream(buf);
++        BinaryInputArchive ia = BinaryInputArchive.getArchive(is);
++        try {
++            ia.readString("");
++            Assert.fail("Should have thrown an IOException");
++        } catch (IOException e) {
++            Assert.assertTrue("Not 'Unreasonable length' exception: " + e,
++                    e.getMessage().startsWith(BinaryInputArchive.UNREASONBLE_LENGTH));
++        }
++    }
++}
+-- 
+1.7.9.5
+

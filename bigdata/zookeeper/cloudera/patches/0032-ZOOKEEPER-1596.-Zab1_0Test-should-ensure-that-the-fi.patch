@@ -1,0 +1,56 @@
+From ebee4af106b15bb93efd391200d13bf183edfc5b Mon Sep 17 00:00:00 2001
+From: "Patrick D. Hunt" <phunt@apache.org>
+Date: Tue, 11 Dec 2012 08:19:42 +0000
+Subject: [PATCH 32/94] ZOOKEEPER-1596. Zab1_0Test should ensure that the file
+ is closed (Enis Soztutar via phunt)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1420030 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                                        |   10 ++++++++++
+ .../apache/zookeeper/server/quorum/Zab1_0Test.java |    9 +++++++--
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 61ea59c..ce7133b 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -1,3 +1,13 @@
++Release 3.4.6 - TBD
++
++Backward compatible changes:
++
++BUGFIXES:
++
++  ZOOKEEPER-1596. Zab1_0Test should ensure that the file is closed
++  (Enis Soztutar via phunt)
++
++
+ Release 3.4.5 - 2012-09-30
+ 
+ Backward compatible changes:
+diff --git a/src/java/test/org/apache/zookeeper/server/quorum/Zab1_0Test.java b/src/java/test/org/apache/zookeeper/server/quorum/Zab1_0Test.java
+index a989ec4..91bd7fb 100644
+--- a/src/java/test/org/apache/zookeeper/server/quorum/Zab1_0Test.java
++++ b/src/java/test/org/apache/zookeeper/server/quorum/Zab1_0Test.java
+@@ -871,8 +871,13 @@ public class Zab1_0Test {
+         peer.setCnxnFactory(new NullServerCnxnFactory());
+         File version2 = new File(tmpDir, "version-2");
+         version2.mkdir();
+-        new FileOutputStream(new File(version2, "currentEpoch")).write("0\n".getBytes());
+-        new FileOutputStream(new File(version2, "acceptedEpoch")).write("0\n".getBytes());
++        FileOutputStream fos;
++        fos = new FileOutputStream(new File(version2, "currentEpoch"));
++        fos.write("0\n".getBytes());
++        fos.close();
++        fos = new FileOutputStream(new File(version2, "acceptedEpoch"));
++        fos.write("0\n".getBytes());
++        fos.close();
+         return peer;
+     }
+ }
+-- 
+1.7.9.5
+

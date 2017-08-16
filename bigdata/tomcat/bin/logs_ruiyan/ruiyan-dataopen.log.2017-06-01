@@ -1,0 +1,2 @@
+2017-06-01 21:25:47 [kafka.utils.VerifiableProperties :68-line]-[INFO:] Verifying properties
+2017-06-01 21:25:47 [kafka.utils.VerifiableProperties :68-line]-[INFO:] Property metadata.broker.list is overridden to node1:9092,node2:9092,node3:9092,node4:9092

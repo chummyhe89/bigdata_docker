@@ -1,0 +1,135 @@
+From c31f97d207cd925526135664347b92216ecae6df Mon Sep 17 00:00:00 2001
+From: Flavio Paiva Junqueira <fpj@apache.org>
+Date: Thu, 26 Sep 2013 21:15:53 +0000
+Subject: [PATCH 53/94] ZOOKEEPER-1603. StaticHostProviderTest
+ testUpdateClientMigrateOrNot hangs (fpj)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1526695 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                                        |    3 +++
+ .../zookeeper/client/StaticHostProvider.java       |    5 ++--
+ .../zookeeper/test/StaticHostProviderTest.java     |   26 ++++++++++++++------
+ 3 files changed, 25 insertions(+), 9 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index b87dc63..74ce8bb 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -67,6 +67,9 @@ BUGFIXES:
+   ZOOKEEPER-1753. ClientCnxn is not properly releasing the resources, 
+                   which are used to ping RwServer (Rakesh R via fpj)
+ 
++  ZOOKEEPER-1603. StaticHostProviderTest testUpdateClientMigrateOrNot hangs (fpj)
++
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/main/org/apache/zookeeper/client/StaticHostProvider.java b/src/java/main/org/apache/zookeeper/client/StaticHostProvider.java
+index df14c9d..959fe89 100644
+--- a/src/java/main/org/apache/zookeeper/client/StaticHostProvider.java
++++ b/src/java/main/org/apache/zookeeper/client/StaticHostProvider.java
+@@ -57,8 +57,9 @@ public final class StaticHostProvider implements HostProvider {
+     public StaticHostProvider(Collection<InetSocketAddress> serverAddresses)
+             throws UnknownHostException {
+         for (InetSocketAddress address : serverAddresses) {
+-            InetAddress resolvedAddresses[] = InetAddress.getAllByName(address
+-                    .getHostName());
++            InetAddress ia = address.getAddress();
++            InetAddress resolvedAddresses[] = InetAddress.getAllByName((ia!=null) ? ia.getHostAddress():
++                address.getHostName());
+             for (InetAddress resolvedAddress : resolvedAddresses) {
+                 this.serverAddresses.add(new InetSocketAddress(resolvedAddress
+                         .getHostAddress(), address.getPort()));
+diff --git a/src/java/test/org/apache/zookeeper/test/StaticHostProviderTest.java b/src/java/test/org/apache/zookeeper/test/StaticHostProviderTest.java
+index 4dec976..b6b3e9e 100644
+--- a/src/java/test/org/apache/zookeeper/test/StaticHostProviderTest.java
++++ b/src/java/test/org/apache/zookeeper/test/StaticHostProviderTest.java
+@@ -21,20 +21,27 @@ package org.apache.zookeeper.test;
+ import static org.junit.Assert.assertEquals;
+ import static org.junit.Assert.assertNotSame;
+ import static org.junit.Assert.assertTrue;
++import static org.junit.Assert.fail;
+ 
+ import org.apache.zookeeper.ZKTestCase;
+ import org.apache.zookeeper.client.HostProvider;
+ import org.apache.zookeeper.client.StaticHostProvider;
+ import org.junit.Test;
++
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++import java.net.InetAddress;
+ import java.net.InetSocketAddress;
+ import java.net.UnknownHostException;
+ import java.util.ArrayList;
+ 
+ public class StaticHostProviderTest extends ZKTestCase {
++    private static final Logger LOG = LoggerFactory.getLogger(StaticHostProviderTest.class);
+ 
+     @Test
+     public void testNextGoesRound() throws UnknownHostException {
+-        HostProvider hostProvider = getHostProvider(2);
++        HostProvider hostProvider = getHostProvider((byte) 2);
+         InetSocketAddress first = hostProvider.next(0);
+         assertTrue(first instanceof InetSocketAddress);
+         hostProvider.next(0);
+@@ -43,7 +50,7 @@ public class StaticHostProviderTest extends ZKTestCase {
+ 
+     @Test
+     public void testNextGoesRoundAndSleeps() throws UnknownHostException {
+-        int size = 2;
++        byte size = 2;
+         HostProvider hostProvider = getHostProvider(size);
+         while (size > 0) {
+             hostProvider.next(0);
+@@ -57,7 +64,7 @@ public class StaticHostProviderTest extends ZKTestCase {
+ 
+     @Test
+     public void testNextDoesNotSleepForZero() throws UnknownHostException {
+-        int size = 2;
++        byte size = 2;
+         HostProvider hostProvider = getHostProvider(size);
+         while (size > 0) {
+             hostProvider.next(0);
+@@ -72,25 +79,30 @@ public class StaticHostProviderTest extends ZKTestCase {
+     @Test
+     public void testTwoConsequitiveCallsToNextReturnDifferentElement()
+             throws UnknownHostException {
+-        HostProvider hostProvider = getHostProvider(2);
++        HostProvider hostProvider = getHostProvider((byte) 2);
+         assertNotSame(hostProvider.next(0), hostProvider.next(0));
+     }
+ 
+     @Test
+     public void testOnConnectDoesNotReset() throws UnknownHostException {
+-        HostProvider hostProvider = getHostProvider(2);
++        HostProvider hostProvider = getHostProvider((byte) 2);
+         InetSocketAddress first = hostProvider.next(0);
+         hostProvider.onConnected();
+         InetSocketAddress second = hostProvider.next(0);
+         assertNotSame(first, second);
+     }
+ 
+-    private StaticHostProvider getHostProvider(int size)
++    private StaticHostProvider getHostProvider(byte size)
+             throws UnknownHostException {
+         ArrayList<InetSocketAddress> list = new ArrayList<InetSocketAddress>(
+                 size);
+         while (size > 0) {
+-            list.add(new InetSocketAddress("10.10.10." + size, 1234));
++            try {
++                list.add(new InetSocketAddress(InetAddress.getByAddress(new byte[]{10, 10, 10, size}), 1234 + size));
++            } catch (UnknownHostException e) {
++                LOG.error("Exception while resolving address", e);
++                fail("Failed to resolve address");
++            }
+             --size;
+         }
+         return new StaticHostProvider(list);
+-- 
+1.7.9.5
+

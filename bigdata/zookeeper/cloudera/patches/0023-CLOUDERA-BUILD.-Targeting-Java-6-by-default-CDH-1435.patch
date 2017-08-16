@@ -1,0 +1,26 @@
+From 874e5a8596a20e822fe99b2b2c712e15c998f88a Mon Sep 17 00:00:00 2001
+From: Robert Kanter <rkanter@cloudera.com>
+Date: Mon, 23 Sep 2013 16:37:48 -0700
+Subject: [PATCH 23/94] CLOUDERA-BUILD. Targeting Java 6 by default
+ (CDH-14356)
+
+---
+ build.xml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/build.xml b/build.xml
+index a4a28da..f5ec26c 100644
+--- a/build.xml
++++ b/build.xml
+@@ -56,7 +56,7 @@
+     <property name="revision.properties" value="revision.properties" />
+     <property file="${basedir}/src/java/${revision.properties}" />
+ 
+-    <property name="targetJavaVersion" value="1.7"/>
++    <property name="targetJavaVersion" value="1.6"/>
+     <property name="javac.target" value="${targetJavaVersion}" />
+     <property name="javac.source" value="1.5" />
+ 
+-- 
+1.7.9.5
+

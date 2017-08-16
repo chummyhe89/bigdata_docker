@@ -1,0 +1,339 @@
+From 07c9989b46298f0c29230abcbab27238a627be41 Mon Sep 17 00:00:00 2001
+From: "Patrick D. Hunt" <phunt@apache.org>
+Date: Tue, 1 Oct 2013 21:18:07 +0000
+Subject: [PATCH 82/94] ZOOKEEPER-1718. Support JLine 2 (Manikumar Reddy via
+ phunt)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/trunk@1528219 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	src/java/main/org/apache/zookeeper/ZooKeeperMain.java
+---
+ CHANGES.txt                                        |    2 +
+ ivy.xml                                            |    2 +-
+ src/java/lib/jline-0.9.94.LICENSE.txt              |   33 --------
+ src/java/lib/jline-2.11.LICENSE.txt                |   35 ++++++++
+ .../org/apache/zookeeper/JLineZNodeCompleter.java  |   84 ++++++++++++++++++++
+ .../org/apache/zookeeper/JLineZNodeCompletor.java  |   84 --------------------
+ .../main/org/apache/zookeeper/ZooKeeperMain.java   |    8 +-
+ 7 files changed, 126 insertions(+), 122 deletions(-)
+ delete mode 100644 src/java/lib/jline-0.9.94.LICENSE.txt
+ create mode 100644 src/java/lib/jline-2.11.LICENSE.txt
+ create mode 100644 src/java/main/org/apache/zookeeper/JLineZNodeCompleter.java
+ delete mode 100644 src/java/main/org/apache/zookeeper/JLineZNodeCompletor.java
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 98eb2e0..81ef638 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -266,6 +266,8 @@ BUGFIXES:
+   ZOOKEEPER-1496. Ephemeral node not getting cleared even after client has
+   exited (Rakesh R via mahadev)
+ 
++  ZOOKEEPER-1718. Support JLine 2 (Manikumar Reddy via phunt)
++
+ IMPROVEMENTS:
+ 
+   ZOOKEEPER-1389. it would be nice if start-foreground used exec $JAVA
+diff --git a/ivy.xml b/ivy.xml
+index a6aca70..b6d7633 100644
+--- a/ivy.xml
++++ b/ivy.xml
+@@ -44,7 +44,7 @@
+   
+     <!-- transitive false turns off dependency checking, log4j deps seem borked -->
+     <dependency org="log4j" name="log4j" rev="1.2.16" transitive="false" conf="default"/>
+-    <dependency org="jline" name="jline" rev="0.9.94" transitive="false" conf="default"/>
++    <dependency org="jline" name="jline" rev="2.11" transitive="false" conf="default"/>
+ 
+     <dependency org="org.jboss.netty" name="netty" conf="default" rev="3.2.2.Final">
+       <artifact name="netty" type="jar" conf="default"/>
+diff --git a/src/java/lib/jline-0.9.94.LICENSE.txt b/src/java/lib/jline-0.9.94.LICENSE.txt
+deleted file mode 100644
+index 1cdc44c..0000000
+--- a/src/java/lib/jline-0.9.94.LICENSE.txt
++++ /dev/null
+@@ -1,33 +0,0 @@
+-Copyright (c) 2002-2006, Marc Prud'hommeaux <mwp1@cornell.edu>
+-All rights reserved.
+-
+-Redistribution and use in source and binary forms, with or
+-without modification, are permitted provided that the following
+-conditions are met:
+-
+-Redistributions of source code must retain the above copyright
+-notice, this list of conditions and the following disclaimer.
+-
+-Redistributions in binary form must reproduce the above copyright
+-notice, this list of conditions and the following disclaimer
+-in the documentation and/or other materials provided with
+-the distribution.
+-
+-Neither the name of JLine nor the names of its contributors
+-may be used to endorse or promote products derived from this
+-software without specific prior written permission.
+-
+-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+-BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+-AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+-EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+-OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+-AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+-IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+-OF THE POSSIBILITY OF SUCH DAMAGE.
+-
+diff --git a/src/java/lib/jline-2.11.LICENSE.txt b/src/java/lib/jline-2.11.LICENSE.txt
+new file mode 100644
+index 0000000..4ac9522
+--- /dev/null
++++ b/src/java/lib/jline-2.11.LICENSE.txt
+@@ -0,0 +1,35 @@
++Copyright (c) 2002-2012, the original author or authors.
++All rights reserved.
++
++http://www.opensource.org/licenses/bsd-license.php
++
++Redistribution and use in source and binary forms, with or
++without modification, are permitted provided that the following
++conditions are met:
++
++Redistributions of source code must retain the above copyright
++notice, this list of conditions and the following disclaimer.
++
++Redistributions in binary form must reproduce the above copyright
++notice, this list of conditions and the following disclaimer
++in the documentation and/or other materials provided with
++the distribution.
++
++Neither the name of JLine nor the names of its contributors
++may be used to endorse or promote products derived from this
++software without specific prior written permission.
++
++THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
++BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
++AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
++EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
++FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
++OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
++PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
++IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
++OF THE POSSIBILITY OF SUCH DAMAGE.
++
+diff --git a/src/java/main/org/apache/zookeeper/JLineZNodeCompleter.java b/src/java/main/org/apache/zookeeper/JLineZNodeCompleter.java
+new file mode 100644
+index 0000000..eda014a
+--- /dev/null
++++ b/src/java/main/org/apache/zookeeper/JLineZNodeCompleter.java
+@@ -0,0 +1,84 @@
++/**
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package org.apache.zookeeper;
++
++import java.util.List;
++
++import jline.console.completer.Completer;
++
++class JLineZNodeCompleter implements Completer {
++    private ZooKeeper zk;
++
++    public JLineZNodeCompleter(ZooKeeper zk) {
++        this.zk = zk;
++    }
++
++    @SuppressWarnings("unchecked")
++    public int complete(String buffer, int cursor, List candidates) {
++        // Guarantee that the final token is the one we're expanding
++        buffer = buffer.substring(0,cursor);
++        String token = "";
++        if (!buffer.endsWith(" ")) {
++            String[] tokens = buffer.split(" ");
++            if (tokens.length != 0) {
++                token = tokens[tokens.length-1] ;
++            }
++        }
++
++        if (token.startsWith("/")){
++            return completeZNode( buffer, token, candidates);
++        }
++        return completeCommand(buffer, token, candidates);
++    }
++
++    private int completeCommand(String buffer, String token,
++            List<String> candidates)
++    {
++        for (String cmd : ZooKeeperMain.getCommands()) {
++            if (cmd.startsWith( token )) {
++                candidates.add(cmd);
++            }
++        }
++        return buffer.lastIndexOf(" ")+1;
++    }
++
++    private int completeZNode( String buffer, String token,
++            List<String> candidates)
++    {
++        String path = token;
++        int idx = path.lastIndexOf("/") + 1;
++        String prefix = path.substring(idx);
++        try {
++            // Only the root path can end in a /, so strip it off every other prefix
++            String dir = idx == 1 ? "/" : path.substring(0,idx-1);
++            List<String> children = zk.getChildren(dir, false);
++            for (String child : children) {
++                if (child.startsWith(prefix)) {
++                    candidates.add( child );
++                }
++            }
++        } catch( InterruptedException e) {
++            return 0;
++        }
++        catch( KeeperException e) {
++            return 0;
++        }
++        return candidates.size() == 0 ? buffer.length() : buffer.lastIndexOf("/") + 1;
++    }
++}
+diff --git a/src/java/main/org/apache/zookeeper/JLineZNodeCompletor.java b/src/java/main/org/apache/zookeeper/JLineZNodeCompletor.java
+deleted file mode 100644
+index 02b0645..0000000
+--- a/src/java/main/org/apache/zookeeper/JLineZNodeCompletor.java
++++ /dev/null
+@@ -1,84 +0,0 @@
+-/**
+- * Licensed to the Apache Software Foundation (ASF) under one
+- * or more contributor license agreements.  See the NOTICE file
+- * distributed with this work for additional information
+- * regarding copyright ownership.  The ASF licenses this file
+- * to you under the Apache License, Version 2.0 (the
+- * "License"); you may not use this file except in compliance
+- * with the License.  You may obtain a copy of the License at
+- *
+- *     http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package org.apache.zookeeper;
+-
+-import java.util.List;
+-
+-import jline.Completor;
+-
+-class JLineZNodeCompletor implements Completor {
+-    private ZooKeeper zk;
+-
+-    public JLineZNodeCompletor(ZooKeeper zk) {
+-        this.zk = zk;
+-    }
+-
+-    @SuppressWarnings("unchecked")
+-    public int complete(String buffer, int cursor, List candidates) {
+-        // Guarantee that the final token is the one we're expanding
+-        buffer = buffer.substring(0,cursor);
+-        String token = "";
+-        if (!buffer.endsWith(" ")) {
+-            String[] tokens = buffer.split(" ");
+-            if (tokens.length != 0) {
+-                token = tokens[tokens.length-1] ;
+-            }
+-        }
+-
+-        if (token.startsWith("/")){
+-            return completeZNode( buffer, token, candidates);
+-        }
+-        return completeCommand(buffer, token, candidates);
+-    }
+-
+-    private int completeCommand(String buffer, String token,
+-            List<String> candidates)
+-    {
+-        for (String cmd : ZooKeeperMain.getCommands()) {
+-            if (cmd.startsWith( token )) {
+-                candidates.add(cmd);
+-            }
+-        }
+-        return buffer.lastIndexOf(" ")+1;
+-    }
+-
+-    private int completeZNode( String buffer, String token,
+-            List<String> candidates)
+-    {
+-        String path = token;
+-        int idx = path.lastIndexOf("/") + 1;
+-        String prefix = path.substring(idx);
+-        try {
+-            // Only the root path can end in a /, so strip it off every other prefix
+-            String dir = idx == 1 ? "/" : path.substring(0,idx-1);
+-            List<String> children = zk.getChildren(dir, false);
+-            for (String child : children) {
+-                if (child.startsWith(prefix)) {
+-                    candidates.add( child );
+-                }
+-            }
+-        } catch( InterruptedException e) {
+-            return 0;
+-        }
+-        catch( KeeperException e) {
+-            return 0;
+-        }
+-        return candidates.size() == 0 ? buffer.length() : buffer.lastIndexOf("/") + 1;
+-    }
+-}
+diff --git a/src/java/main/org/apache/zookeeper/ZooKeeperMain.java b/src/java/main/org/apache/zookeeper/ZooKeeperMain.java
+index 39fc465..a5b700a 100644
+--- a/src/java/main/org/apache/zookeeper/ZooKeeperMain.java
++++ b/src/java/main/org/apache/zookeeper/ZooKeeperMain.java
+@@ -302,8 +302,8 @@ public class ZooKeeperMain {
+             boolean jlinemissing = false;
+             // only use jline if it's in the classpath
+             try {
+-                Class consoleC = Class.forName("jline.ConsoleReader");
+-                Class completorC =
++                Class<?> consoleC = Class.forName("jline.ConsoleReader");
++                Class<?> completorC =
+                     Class.forName("org.apache.zookeeper.JLineZNodeCompletor");
+ 
+                 System.out.println("JLine support is enabled");
+@@ -313,8 +313,8 @@ public class ZooKeeperMain {
+ 
+                 Object completor =
+                     completorC.getConstructor(ZooKeeper.class).newInstance(zk);
+-                Method addCompletor = consoleC.getMethod("addCompletor",
+-                        Class.forName("jline.Completor"));
++                Method addCompletor = consoleC.getMethod("addCompleter",
++                        Class.forName("jline.console.completer.Completer"));
+                 addCompletor.invoke(console, completor);
+ 
+                 String line;
+-- 
+1.7.9.5
+

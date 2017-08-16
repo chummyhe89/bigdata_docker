@@ -1,0 +1,65 @@
+From 942ef63e7e95fca668e8707b6ab6c8c2c7519ad3 Mon Sep 17 00:00:00 2001
+From: Michi Mutsuzaki <michim@apache.org>
+Date: Wed, 4 Dec 2013 04:20:53 +0000
+Subject: [PATCH 76/94] ZOOKEEPER-1632. fix memory leaks in cli_st (fpj via
+ michim)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1547703 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt     |    2 ++
+ src/c/src/cli.c |    9 +++++++--
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index ae95e6f..834a024 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -113,6 +113,8 @@ BUGFIXES:
+   ZOOKEEPER-1238. when the linger time was changed for NIO the patch missed
+   Netty (Skye Wanderman-Milne via fpj)
+ 
++  ZOOKEEPER-1632. fix memory leaks in cli_st (fpj via michim)
++
+   ZOOKEEPER-1837. Fix JMXEnv checks (potential race conditions)
+   (Germán Blanco via fpj)
+ 
+diff --git a/src/c/src/cli.c b/src/c/src/cli.c
+index 44ff9d4..7b3cd61 100644
+--- a/src/c/src/cli.c
++++ b/src/c/src/cli.c
+@@ -182,6 +182,11 @@ void my_string_completion(int rc, const char *name, const void *data) {
+       shutdownThisThing=1;
+ }
+ 
++void my_string_completion_free_data(int rc, const char *name, const void *data) {
++    my_string_completion(rc, name, data);
++    free((void*)data);
++}
++
+ void my_data_completion(int rc, const char *value, int value_len,
+         const struct Stat *stat, const void *data) {
+     struct timeval tv;
+@@ -418,7 +423,7 @@ void processline(char *line) {
+ //                    my_string_completion, strdup(line));
+ //        }
+         rc = zoo_acreate(zh, line, "new", 3, &ZOO_OPEN_ACL_UNSAFE, flags,
+-                my_string_completion, strdup(line));
++                my_string_completion_free_data, strdup(line));
+         if (rc) {
+             fprintf(stderr, "Error %d for %s\n", rc, line);
+         }
+@@ -442,7 +447,7 @@ void processline(char *line) {
+             fprintf(stderr, "Path must start with /, found: %s\n", line);
+             return;
+         }
+-        rc = zoo_async(zh, line, my_string_completion, strdup(line));
++        rc = zoo_async(zh, line, my_string_completion_free_data, strdup(line));
+         if (rc) {
+             fprintf(stderr, "Error %d for %s\n", rc, line);
+         }
+-- 
+1.7.9.5
+

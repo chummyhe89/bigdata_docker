@@ -1,0 +1,2 @@
+Spark 1.6.0-cdh5.7.0 built for Hadoop 2.6.0-cdh5.7.0
+Build flags: -Dcdh.build=true -Divy.home=/var/lib/jenkins/.ivy2 -Dsbt.ivy.home=/var/lib/jenkins/.ivy2 -Duser.home=/var/lib/jenkins -Drepo.maven.org=http://azov01.sf.cloudera.com:8081/artifactory/cloudera-mirrors/ -Dreactor.repo=file:///var/lib/jenkins/.m2/repository -DskipTests -DrecompileMode=all

@@ -1,0 +1,66 @@
+From 269fa871518bd3959858613640a560e6d75d168d Mon Sep 17 00:00:00 2001
+From: "Patrick D. Hunt" <phunt@apache.org>
+Date: Tue, 22 Oct 2013 23:16:34 +0000
+Subject: [PATCH 59/94] ZOOKEEPER-1799.
+ SaslAuthFailDesignatedClientTest.testAuth fails
+ frequently on SUSE (Jeffrey Zhong via phunt)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1534843 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                                        |    3 +++
+ .../test/SaslAuthFailDesignatedClientTest.java     |   11 ++++++++++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 285bd71..2724b26 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -81,6 +81,9 @@ BUGFIXES:
+   ZOOKEEPER-1610. Some classes are using == or != to compare
+   Long/String objects instead of .equals() (Edward Ribeiro via phunt)
+ 
++  ZOOKEEPER-1799. SaslAuthFailDesignatedClientTest.testAuth fails
++  frequently on SUSE (Jeffrey Zhong via phunt)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/test/org/apache/zookeeper/test/SaslAuthFailDesignatedClientTest.java b/src/java/test/org/apache/zookeeper/test/SaslAuthFailDesignatedClientTest.java
+index b6e166a..5291141 100644
+--- a/src/java/test/org/apache/zookeeper/test/SaslAuthFailDesignatedClientTest.java
++++ b/src/java/test/org/apache/zookeeper/test/SaslAuthFailDesignatedClientTest.java
+@@ -21,10 +21,12 @@ package org.apache.zookeeper.test;
+ import java.io.File;
+ import java.io.FileWriter;
+ import java.io.IOException;
++import java.util.concurrent.TimeUnit;
+ import java.util.concurrent.atomic.AtomicInteger;
+ 
+ import org.apache.zookeeper.CreateMode;
+ import org.apache.zookeeper.KeeperException;
++import org.apache.zookeeper.TestableZooKeeper;
+ import org.apache.zookeeper.WatchedEvent;
+ import org.apache.zookeeper.ZooKeeper;
+ import org.apache.zookeeper.Watcher.Event.KeeperState;
+@@ -84,7 +86,14 @@ public class SaslAuthFailDesignatedClientTest extends ClientBase {
+ 
+     @Test
+     public void testAuth() throws Exception {
+-        ZooKeeper zk = createClient();
++        // Cannot use createClient here because server may close session before 
++        // JMXEnv.ensureAll is called which will fail the test case
++        CountdownWatcher watcher = new CountdownWatcher();
++        TestableZooKeeper zk = new TestableZooKeeper(hostPort, CONNECTION_TIMEOUT, watcher);
++        if (!watcher.clientConnected.await(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS))
++        {
++            Assert.fail("Unable to connect to server");
++        }
+         try {
+             zk.create("/path1", null, Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
+             Assert.fail("Should have gotten exception.");
+-- 
+1.7.9.5
+

@@ -1,0 +1,56 @@
+From c80745319a4b48e5d703b9efded4f19d1136b6e0 Mon Sep 17 00:00:00 2001
+From: "Patrick D. Hunt" <phunt@apache.org>
+Date: Tue, 19 Feb 2013 07:55:58 +0000
+Subject: [PATCH 42/94] ZOOKEEPER-1648. Fix WatcherTest in JDK7 (Thawan
+ Kooburat via phunt)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1447614 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt                                        |    3 +++
+ .../org/apache/zookeeper/test/WatcherTest.java     |    9 +++++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 0060224..12d608e 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -37,6 +37,9 @@ BUGFIXES:
+   ZOOKEEPER-1645. ZooKeeper OSGi package imports not complete
+   (Arnoud Glimmerveen via phunt)
+ 
++  ZOOKEEPER-1648. Fix WatcherTest in JDK7
++  (Thawan Kooburat via phunt)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/test/org/apache/zookeeper/test/WatcherTest.java b/src/java/test/org/apache/zookeeper/test/WatcherTest.java
+index 90ec513..6bead89 100644
+--- a/src/java/test/org/apache/zookeeper/test/WatcherTest.java
++++ b/src/java/test/org/apache/zookeeper/test/WatcherTest.java
+@@ -39,6 +39,7 @@ import org.apache.zookeeper.Watcher.Event.EventType;
+ import org.apache.zookeeper.ZooDefs.Ids;
+ import org.apache.zookeeper.data.Stat;
+ import org.junit.Assert;
++import org.junit.Before;
+ import org.junit.Test;
+ 
+ public class WatcherTest extends ClientBase {
+@@ -68,6 +69,14 @@ public class WatcherTest extends ClientBase {
+         }
+     }
+ 
++    @Before
++    public void setUp() throws Exception {
++        super.setUp();
++        // Reset to default value since some test cases set this to true.
++        // Needed for JDK7 since unit test can run is random order
++        ClientCnxn.setDisableAutoResetWatch(false);
++    }
++
+     /**
+      * Verify that we get all of the events we expect to get. This particular
+      * case verifies that we see all of the data events on a particular node.
+-- 
+1.7.9.5
+

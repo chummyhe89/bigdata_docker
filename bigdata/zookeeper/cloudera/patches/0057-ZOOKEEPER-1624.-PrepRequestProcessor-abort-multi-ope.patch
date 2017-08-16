@@ -1,0 +1,151 @@
+From 1dd3a8637ee2158d21dcda0eeebc7c10e68e1c7f Mon Sep 17 00:00:00 2001
+From: Camille Fournier <camille@apache.org>
+Date: Thu, 10 Oct 2013 18:06:58 +0000
+Subject: [PATCH 57/94] ZOOKEEPER-1624. PrepRequestProcessor abort
+ multi-operation incorrectly. (thawan via camille)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1531063 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                                        |    2 +
+ src/c/tests/TestMulti.cc                           |   50 ++++++++++++++++++++
+ .../zookeeper/server/PrepRequestProcessor.java     |   26 ++++++++--
+ 3 files changed, 74 insertions(+), 4 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 55c7468..be584fe 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -75,6 +75,8 @@ BUGFIXES:
+ 
+   ZOOKEEPER-1774. QuorumPeerMainTest fails consistently with
+   "complains about host" assertion failure (phunt)
++  
++  ZOOKEEPER-1624. PrepRequestProcessor abort multi-operation incorrectly. (thawan via camille)
+ 
+ IMPROVEMENTS:
+ 
+diff --git a/src/c/tests/TestMulti.cc b/src/c/tests/TestMulti.cc
+index 6bf61b2..a54e047 100644
+--- a/src/c/tests/TestMulti.cc
++++ b/src/c/tests/TestMulti.cc
+@@ -177,6 +177,7 @@ class Zookeeper_multi : public CPPUNIT_NS::TestFixture
+     CPPUNIT_TEST(testMultiFail);
+     CPPUNIT_TEST(testCheck);
+     CPPUNIT_TEST(testWatch);
++    CPPUNIT_TEST(testSequentialNodeCreateInAsyncMulti);
+ #endif
+     CPPUNIT_TEST_SUITE_END();
+ 
+@@ -244,6 +245,10 @@ public:
+         count++;
+     }
+ 
++    static void multi_completion_fn_no_assert(int rc, const void *data) {
++        count++;
++    }
++
+     static void waitForMultiCompletion(int seconds) {
+         time_t expires = time(0) + seconds;
+         while(count == 0 && time(0) < expires) {
+@@ -252,6 +257,10 @@ public:
+         count--;
+     }
+ 
++    static void resetCounter() {
++        count = 0;
++    }
++
+     /**
+      * Test basic multi-op create functionality 
+      */
+@@ -646,6 +655,47 @@ public:
+         // wait for multi completion in doMultiInWatch
+         waitForMultiCompletion(5);
+      }
++
++     /**
++      * ZOOKEEPER-1624: PendingChanges of create sequential node request didn't
++      * get rollbacked correctly when multi-op failed. This caused
++      * create sequential node request in subsequent multi-op to failed because
++      * sequential node name generation is incorrect.
++      *
++      * The check is to make sure that each request in multi-op failed with
++      * the correct reason.
++      */
++     void testSequentialNodeCreateInAsyncMulti() {
++         int rc;
++         watchctx_t ctx;
++         zhandle_t *zk = createClient(&ctx);
++
++         int iteration = 4;
++         int nops = 2;
++
++         zoo_op_result_t results[iteration][nops];
++         zoo_op_t ops[nops];
++         zoo_create_op_init(&ops[0], "/node-",   "", 0, &ZOO_OPEN_ACL_UNSAFE, ZOO_SEQUENCE, NULL, 0);
++         zoo_create_op_init(&ops[1], "/dup", "", 0, &ZOO_OPEN_ACL_UNSAFE, 0, NULL, 0);
++         for (int i = 0; i < iteration ; ++i) {
++           rc = zoo_amulti(zk, nops, ops, results[i], multi_completion_fn_no_assert, 0);
++           CPPUNIT_ASSERT_EQUAL((int)ZOK, rc);
++         }
++
++         waitForMultiCompletion(10);
++
++         CPPUNIT_ASSERT_EQUAL((int)ZOK, results[0][0].err);
++         CPPUNIT_ASSERT_EQUAL((int)ZOK, results[1][0].err);
++         CPPUNIT_ASSERT_EQUAL((int)ZOK, results[2][0].err);
++         CPPUNIT_ASSERT_EQUAL((int)ZOK, results[3][0].err);
++
++         CPPUNIT_ASSERT_EQUAL((int)ZOK, results[0][1].err);
++         CPPUNIT_ASSERT_EQUAL((int)ZNODEEXISTS, results[1][1].err);
++         CPPUNIT_ASSERT_EQUAL((int)ZNODEEXISTS, results[2][1].err);
++         CPPUNIT_ASSERT_EQUAL((int)ZNODEEXISTS, results[3][1].err);
++
++         resetCounter();
++     }
+ };
+ 
+ volatile int Zookeeper_multi::count;
+diff --git a/src/java/main/org/apache/zookeeper/server/PrepRequestProcessor.java b/src/java/main/org/apache/zookeeper/server/PrepRequestProcessor.java
+index 59e45cc..f636d2a 100644
+--- a/src/java/main/org/apache/zookeeper/server/PrepRequestProcessor.java
++++ b/src/java/main/org/apache/zookeeper/server/PrepRequestProcessor.java
+@@ -198,10 +198,28 @@ public class PrepRequestProcessor extends Thread implements RequestProcessor {
+     		String path = op.getPath();
+ 
+     		try {
+-    			ChangeRecord cr = getRecordForPath(path);
+-    			if (cr != null) {
+-    				pendingChangeRecords.put(path, cr);
+-    			}
++    		    ChangeRecord cr = getRecordForPath(path);
++    		    if (cr != null) {
++    		        pendingChangeRecords.put(path, cr);
++    		    }
++    		    /*
++    		     * ZOOKEEPER-1624 - We need to store for parent's ChangeRecord
++    		     * of the parent node of a request. So that if this is a
++    		     * sequential node creation request, rollbackPendingChanges()
++    		     * can restore previous parent's ChangeRecord correctly.
++    		     *
++    		     * Otherwise, sequential node name generation will be incorrect
++    		     * for a subsequent request.
++    		     */
++    		    int lastSlash = path.lastIndexOf('/');
++    		    if (lastSlash == -1 || path.indexOf('\0') != -1) {
++    		        continue;
++    		    }
++    		    String parentPath = path.substring(0, lastSlash);
++    		    ChangeRecord parentCr = getRecordForPath(parentPath);
++    		    if (parentCr != null) {
++    		        pendingChangeRecords.put(parentPath, parentCr);
++    		    }
+     		} catch (KeeperException.NoNodeException e) {
+     			// ignore this one
+     		}
+-- 
+1.7.9.5
+

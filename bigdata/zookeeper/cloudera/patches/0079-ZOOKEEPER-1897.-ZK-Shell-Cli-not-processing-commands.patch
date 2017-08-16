@@ -1,0 +1,44 @@
+From 555c47aff982b7121e807b876215dfcbb87bd02e Mon Sep 17 00:00:00 2001
+From: Michi Mutsuzaki <michim@apache.org>
+Date: Thu, 3 Apr 2014 22:40:28 +0000
+Subject: [PATCH 79/94] ZOOKEEPER-1897. ZK Shell/Cli not processing commands
+ (stack via michim)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1584440 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                                        |    1 +
+ .../main/org/apache/zookeeper/ZooKeeperMain.java   |    3 +++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index e48a1a4..98eb2e0 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -9,6 +9,7 @@ BUGFIXES:
+   ZOOKEEPER-1901. [JDK8] Sort children for comparison in AsyncOps tests
+   (Andrew Purtell via michim)
+ 
++  ZOOKEEPER-1897. ZK Shell/Cli not processing commands (stack via michim)
+   ZOOKEEPER-1596. Zab1_0Test should ensure that the file is closed
+   (Enis Soztutar via phunt)
+ 
+diff --git a/src/java/main/org/apache/zookeeper/ZooKeeperMain.java b/src/java/main/org/apache/zookeeper/ZooKeeperMain.java
+index b1b4c27..39fc465 100644
+--- a/src/java/main/org/apache/zookeeper/ZooKeeperMain.java
++++ b/src/java/main/org/apache/zookeeper/ZooKeeperMain.java
+@@ -349,6 +349,9 @@ public class ZooKeeperMain {
+                     executeLine(line);
+                 }
+             }
++        } else {
++            // Command line args non-null.  Run what was passed.
++            processCmd(cl);
+         }
+     }
+ 
+-- 
+1.7.9.5
+

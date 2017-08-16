@@ -1,0 +1,786 @@
+commit 5b80fcb040bd29037db16d3bc5a4a4583d522621
+Author: Jenkins <dev-kitchen@cloudera.com>
+Date:   Fri Feb 12 19:08:30 2016 -0800
+
+    Updating Maven version to 5.7.0
+
+commit add0bc09ff6bc235936bf69387a34640c9937ebf
+Author: Jenkins <dev-kitchen@cloudera.com>
+Date:   Fri Feb 12 18:49:52 2016 -0800
+
+    Updating Maven version to 5.7.0
+
+commit 25980fd5495450125a63bf93945e78fb58b4457b
+Author: Jenkins <dev-kitchen@cloudera.com>
+Date:   Fri Feb 12 18:03:54 2016 -0800
+
+    Branch for CDH5.7.0
+
+commit 83f1b9fca6968747834d9334d29efb5971f03376
+Author: Jenkins <dev-kitchen@cloudera.com>
+Date:   Fri Feb 12 17:43:42 2016 -0800
+
+    Branch for CDH5.7.x
+
+commit 619369651e2d14d28a916e771455f15c9f9ebec7
+Author: Hongchao Deng <fengjingchao@gmail.com>
+Date:   Mon Oct 5 11:50:32 2015 -0700
+
+    CDH-31477: Add pre-commit hook
+    
+    Change-Id: I66f24ccc6b30b6d50d288d38e5290a1821b788b4
+
+commit adcc40df7a8fd0971695eb5af1bb9943414638f2
+Author: Jenkins <dev-kitchen@cloudera.com>
+Date:   Fri Sep 4 15:16:09 2015 -0700
+
+    Updating Maven version to 5.7.0-SNAPSHOT
+
+commit 299df6216d1dde27389c79df86eec50028e37b48
+Author: Hongchao Deng <hdeng@cloudera.com>
+Date:   Mon May 18 11:08:48 2015 -0700
+
+    ZOOKEEPER-1718. Support JLine 2 (Manikumar Reddy via phunt)
+
+commit bf5f7a94beb5f8d4baba80517c9cb36f288b63bf
+Author: Michi Mutsuzaki <michim@apache.org>
+Date:   Wed Mar 25 07:38:44 2015 +0000
+
+    ZOOKEEPER-2146 BinaryInputArchive readString should check length before allocating memory (Hongchao Deng via michim)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/trunk@1669060 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit ad21781ce9eec40f2855aa3e6bf0fe368ae2dd43
+Author: Michi Mutsuzaki <michim@apache.org>
+Date:   Wed Mar 25 07:48:54 2015 +0000
+
+    ZOOKEEPER-2149 Logging of client address when socket connection established (Hongchao Deng via michim)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/trunk@1669062 13f79535-47bb-0310-9956-ffa450edef68
+
+commit dec919723aaa61dd962126aab2420b48f1b1167d
+Author: mthakkar <mthakkar@cloudera.com>
+Date:   Tue Mar 10 23:40:41 2015 -0700
+
+     Fix Clover classname issue with new version of clover
+
+commit 0d62279091dbf3377da79fc2899b37e726671985
+Author: Jenkins slave <kitchen-build@cloudera.com>
+Date:   Mon Mar 9 07:46:23 2015 -0700
+
+    Preparing for CDH5.5.0 development
+
+commit a38f443dea122fe6f64bf4fc44d40da85a66cb5a
+Author: Patrick Hunt <phunt@cloudera.com>
+Date:   Thu Feb 19 17:34:45 2015 -0800
+
+    CDH-25328 ZooKeeper - Build all C5 components with -source/-target 1.7
+
+commit 07c9989b46298f0c29230abcbab27238a627be41
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Tue Oct 1 21:18:07 2013 +0000
+
+    ZOOKEEPER-1718. Support JLine 2 (Manikumar Reddy via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/trunk@1528219 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	src/java/main/org/apache/zookeeper/ZooKeeperMain.java
+
+commit 639308ff113ed8e07017e779a47d5c239f3835f6
+Author: Jenkins slave <kitchen-build@cloudera.com>
+Date:   Tue Oct 28 10:21:40 2014 -0700
+
+    Preparing for CDH5.4.0 development
+
+commit 422872cbc6e2a61b59cbff0c7fead906aff0dd4c
+Author: Jenkins slave <kitchen-build@cloudera.com>
+Date:   Fri Sep 26 09:26:31 2014 -0700
+
+    Preparing for CDH5.3.0 development
+
+commit 555c47aff982b7121e807b876215dfcbb87bd02e
+Author: Michi Mutsuzaki <michim@apache.org>
+Date:   Thu Apr 3 22:40:28 2014 +0000
+
+    ZOOKEEPER-1897. ZK Shell/Cli not processing commands (stack via michim)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1584440 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 857c559374b03cd271115301da5295fcd28bb9f5
+Author: Michi Mutsuzaki <michim@apache.org>
+Date:   Mon Mar 24 21:45:38 2014 +0000
+
+    ZOOKEEPER-1901. [JDK8] Sort children for comparison in AsyncOps tests (Andrew Purtell via michim)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1581080 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit a7567ccddd6849409efa7c3a164bff6c1bcf0af6
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Thu Sep 18 15:51:08 2014 +0000
+
+    ZOOKEEPER-2039. Jute compareBytes incorrect comparison index (Ian Dimayuga via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1626009 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 942ef63e7e95fca668e8707b6ab6c8c2c7519ad3
+Author: Michi Mutsuzaki <michim@apache.org>
+Date:   Wed Dec 4 04:20:53 2013 +0000
+
+    ZOOKEEPER-1632. fix memory leaks in cli_st (fpj via michim)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1547703 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 081bf9531a65e3f4ea45ad338f57428e11b0b482
+Author: Michi Mutsuzaki <michim@apache.org>
+Date:   Wed Feb 12 01:43:10 2014 +0000
+
+    ZOOKEEPER-1873. Unnecessarily InstanceNotFoundException is coming when unregister failed jmxbeans (Rakesh R via michim)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1567490 13f79535-47bb-0310-9956-ffa450edef68
+
+commit c74c40e0fd32b7e4ed56fb406dfc966774aa625e
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Mon Feb 10 21:26:54 2014 +0000
+
+    ZOOKEEPER-1811. The ZooKeeperSaslClient service name principal is hardcoded to "zookeeper" (Harsh J via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1566749 13f79535-47bb-0310-9956-ffa450edef68
+
+commit d2af9299b72a13e6321b823799326c0ec5f4162c
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Mon Jan 27 13:38:03 2014 +0000
+
+    ZOOKEEPER-1867. Bug in ZkDatabaseCorruptionTest (fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1561673 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 8c717cf07b68850937f07b8890b31f1055fc48c1
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Fri Jan 24 17:06:22 2014 +0000
+
+    ZOOKEEPER-1858. JMX checks - potential race conditions while stopping and starting server (Rakesh R via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1561069 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 38199d226abece0d169191896c66f34a7068c92c
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Thu Jan 16 22:59:54 2014 +0000
+
+    ZOOKEEPER-1837. Fix JMXEnv checks (potential race conditions)
+      (Germán Blanco via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1558951 13f79535-47bb-0310-9956-ffa450edef68
+
+commit b1f2e002ef535579393abb885850d6dfebd9fe9b
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Sun Jan 12 21:36:17 2014 +0000
+
+    ZOOKEEPER-1238. when the linger time was changed for NIO the patch missed
+    Netty (Skye Wanderman-Milne via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1557614 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 886f46609b7cd0d5442aa58ce498b0845001608b
+Author: Michi Mutsuzaki <michim@apache.org>
+Date:   Thu Jan 9 23:01:19 2014 +0000
+
+    ZOOKEEPER-1857. PrepRequestProcessotTest doesn't shutdown ZooKeeper server (Germán Blanco via michim)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1556977 13f79535-47bb-0310-9956-ffa450edef68
+
+commit b7ff02d7cb44102cd7b24c4924163d8b1b135c1d
+Author: Michi Mutsuzaki <michim@apache.org>
+Date:   Thu Jan 9 21:03:16 2014 +0000
+
+    ZOOKEEPER-1057. zookeeper c-client, connection to offline server fails to successfully fallback to second zk host (Germán Blanco via michim)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1556949 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 02b0c95b40c29d1f1f4f0fa0cf062e4ff456deb7
+Author: Michi Mutsuzaki <michim@apache.org>
+Date:   Thu Jan 9 19:22:57 2014 +0000
+
+    ZOOKEEPER-1414. QuorumPeerMainTest.testQuorum, testBadPackets are failing intermittently (Rakesh R via michim)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1556926 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 11bc0fc014e92415eddb71cb9ad56b069c04c0bd
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Fri Jan 3 00:44:27 2014 +0000
+
+    ZOOKEEPER-1852. ServerCnxnFactory instance is not properly cleanedup (Rakesh R via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1554983 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 87f36c2038233a759225886e3f89fa032fecc7d2
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Fri Jan 3 00:23:23 2014 +0000
+
+    ZOOKEEPER-1852. ServerCnxnFactory instance is not properly cleanedup (Rakesh R via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1554979 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 33d1a7b0536a30541067a37a316af55ebb7b850a
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Thu Dec 19 22:36:08 2013 +0000
+
+    ZOOKEEPER-1849. Need to properly tear down tests in various
+      cases (Germán via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1552447 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+    	src/java/test/org/apache/zookeeper/test/LoadFromLogTest.java
+
+commit 1d85365a6f439958d5b90add63bff98672cf51b8
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Sat Dec 14 11:23:24 2013 +0000
+
+    ZOOKEEPER-1837. Fix JMXEnv checks (potential race conditions) (Germán Blanco via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1550923 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 3397b3d933f91732463238dfa68a6279e5a973ad
+Author: Michi Mutsuzaki <michim@apache.org>
+Date:   Wed Dec 11 00:12:53 2013 +0000
+
+    ZOOKEEPER-1834. Catch IOException in FileTxnLog (fpj via michim)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1550006 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit cf726c71c93fb0525d86b325891be8e271d471d5
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Sat Dec 7 10:17:54 2013 +0000
+
+    ZOOKEEPER-1459. Standalone ZooKeeperServer is not closing
+      the transaction log files on shutdown (Rakesh R via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1548826 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 9c9d678853a34f4be6545bb70d21267ba8373a7a
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Thu Oct 24 01:10:07 2013 +0000
+
+    ZOOKEEPER-1557. jenkins jdk7 test failure in testBadSaslAuthNotifiesWatch (Eugene Koontz via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1535252 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 269fa871518bd3959858613640a560e6d75d168d
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Tue Oct 22 23:16:34 2013 +0000
+
+    ZOOKEEPER-1799. SaslAuthFailDesignatedClientTest.testAuth fails frequently on SUSE (Jeffrey Zhong via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1534843 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit ed31bf45a6c93c68fba5326f824f0eb07306c284
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Fri Oct 11 19:19:18 2013 +0000
+
+    ZOOKEEPER-1610. Some classes are using == or != to compare Long/String objects instead of .equals() (Edward Ribeiro via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1531397 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 1dd3a8637ee2158d21dcda0eeebc7c10e68e1c7f
+Author: Camille Fournier <camille@apache.org>
+Date:   Thu Oct 10 18:06:58 2013 +0000
+
+    ZOOKEEPER-1624. PrepRequestProcessor abort multi-operation incorrectly. (thawan via camille)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1531063 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 738d52aef4dc49c10bcbadf0920315ee012af98d
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Wed Oct 9 22:14:08 2013 +0000
+
+    ZOOKEEPER-1627. Add org.apache.zookeeper.common to exported packages in OSGi MANIFEST (Arnoud Glimmerveen via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1530810 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 46abda718613ebd01fffdd4e92a0c9452b32f1f4
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Tue Oct 8 05:27:13 2013 +0000
+
+    ZOOKEEPER-1774. QuorumPeerMainTest fails consistently with complains about host" assertion failure (phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1530155 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 3a451374ea7d3929712e1728ac5f1f5b0ee65155
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Tue Oct 1 23:45:39 2013 +0000
+
+    ZOOKEEPER-1770. NullPointerException in SnapshotFormatter (Germán Blanco via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1528272 13f79535-47bb-0310-9956-ffa450edef68
+
+commit c31f97d207cd925526135664347b92216ecae6df
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Thu Sep 26 21:15:53 2013 +0000
+
+    ZOOKEEPER-1603. StaticHostProviderTest testUpdateClientMigrateOrNot hangs (fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1526695 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 701276a4706e81fa8cec5dc2295457b492f3c1a8
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Wed Sep 18 12:33:45 2013 +0000
+
+    ZOOKEEPER-1753. ClientCnxn is not properly releasing the resources, which are used to ping RwServer (Rakesh R via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1524387 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 232bd22ec38397c0debcec26b4894f6de9452657
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Wed Sep 18 10:24:00 2013 +0000
+
+    ZOOKEEPER-1657. Increased CPU usage by unnecessary SASL checks (Philip K. Warren via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1524355 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 02fc15de3f395a43cd82310939e4825487d4650f
+Author: Mahadev Konar <mahadev@apache.org>
+Date:   Wed Sep 18 02:06:28 2013 +0000
+
+    ZOOKEEPER-1751. ClientCnxn#run could miss the second ping or connection get dropped before a ping. (Jeffrey Zhong  via mahadev)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1524274 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit c3a688053ba2e47c038c64cd7abd12067e651d83
+Author: Michi Mutsuzaki <michim@apache.org>
+Date:   Thu Sep 12 17:26:40 2013 +0000
+
+    ZOOKEEPER-1750. Race condition producing NPE in NIOServerCnxn.toString (Rakesh R via michim)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1522673 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 3d7746384e9914bf451291c98ee9c49fdc7d1fed
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Mon Sep 2 21:47:42 2013 +0000
+
+    ZOOKEEPER-1379. 'printwatches, redo, history and connect '. client commands always print usage. This is not necessary (edward via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1519521 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 18649244f800c57801ab94c678453246d14b4780
+Author: Camille Fournier <camille@apache.org>
+Date:   Fri Aug 2 17:07:06 2013 +0000
+
+    ZOOKEEPER-1731. Unsynchronized access to ServerCnxnFactory.connectionBeans results in
+      deadlock. (Dave Latham via camille)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1509780 13f79535-47bb-0310-9956-ffa450edef68
+
+commit cff0fd60256a5c8988f702365bf2d01331c758e6
+Author: Camille Fournier <camille@apache.org>
+Date:   Mon Jul 15 01:28:22 2013 +0000
+
+    ZOOKEEPER-1629. testTransactionLogCorruption occasionally fails. (shralex via camille)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1503100 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 5e60b0169103a406797b53fc951bdde684c7addf
+Author: Camille Fournier <camille@apache.org>
+Date:   Sun Jul 14 22:20:49 2013 +0000
+
+    ZOOKEEPER-1629. testTransactionLogCorruption occasionally fails. (shralex via camille)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1503073 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 3fd3206003cfa5558848dad4141602026d5cc489
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Tue Feb 19 08:28:54 2013 +0000
+
+    ZOOKEEPER-1647. OSGi package import/export changes not applied to bin-jar (Arnoud Glimmerveen via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1447622 13f79535-47bb-0310-9956-ffa450edef68
+
+commit d8a886e4e7cca6c089415f17cd1d30cb627fab26
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Tue Feb 19 08:18:42 2013 +0000
+
+    ZOOKEEPER-1606. intermittent failures in ZkDatabaseCorruptionTest on jenkins (lixiaofeng via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1447619 13f79535-47bb-0310-9956-ffa450edef68
+
+commit c80745319a4b48e5d703b9efded4f19d1136b6e0
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Tue Feb 19 07:55:58 2013 +0000
+
+    ZOOKEEPER-1648. Fix WatcherTest in JDK7 (Thawan Kooburat via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1447614 13f79535-47bb-0310-9956-ffa450edef68
+
+commit c66befb42d1bc17425c2fe1c92e25fe41625075b
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Sat Feb 16 00:50:18 2013 +0000
+
+    ZOOKEEPER-1645. ZooKeeper OSGi package imports not complete (Arnoud Glimmerveen via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1446829 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 44ddf7d2a3e6d171c3aaec85dc87a824ceeb14a4
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Sun Feb 3 06:41:11 2013 +0000
+
+    ZOOKEEPER-1562. Memory leaks in zoo_multi API (Deepak Jagtap via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1441863 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit a8bcb5c9a6f34d39296d2b07dd15f869eaecf2b2
+Author: Camille Fournier <camille@apache.org>
+Date:   Mon Dec 31 01:44:18 2012 +0000
+
+    ZOOKEEPER-1535. ZK Shell/Cli re-executes last command on exit (Edward Ribeiro via camille)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1427035 13f79535-47bb-0310-9956-ffa450edef68
+
+commit f1a6db5a91525d3cfd178aa0fc1c0c235d51f267
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Wed Dec 19 08:04:33 2012 +0000
+
+    ZOOKEEPER-1334. Zookeeper 3.4.x is not OSGi compliant - MANIFEST.MF is flawed (Claus Ibsen via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1423780 13f79535-47bb-0310-9956-ffa450edef68
+
+commit c72e0914f9193d9c27700d18b51bccce9fd1a7d5
+Author: Mahadev Konar <mahadev@apache.org>
+Date:   Mon Dec 17 07:12:12 2012 +0000
+
+    ZOOKEEPER-1578. org.apache.zookeeper.server.quorum.Zab1_0Test failed due to  hard code with 33556 port. (Li Ping via mahadev)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1422771 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit aa243b888968c9bf444909d9965073ff87a3144f
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Thu Dec 13 07:18:51 2012 +0000
+
+    ZOOKEEPER-1478. Small bug in QuorumTest.testFollowersStartAfterLeader( ) (Alexander Shraer via fpj, breed, phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1421095 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 92b1748794598278434bb36f2af37303b0a7bafe
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Wed Dec 12 08:02:34 2012 +0000
+
+    ZOOKEEPER-1553. Findbugs configuration is missing some dependencies (Sean Busbey via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1420556 13f79535-47bb-0310-9956-ffa450edef68
+
+commit 9b2e13e930d73ebfdb62142d7fef9e6a9a569cf6
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Wed Dec 12 07:39:44 2012 +0000
+
+    ZOOKEEPER-753. log4j dependency in the pom needs to have exclusion lists (Sean Busbey via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1420553 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 8c7a742490dcc7c78cfbfacaf84cd672694d1b3f
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Wed Dec 12 06:51:38 2012 +0000
+
+    ZOOKEEPER-1513. "Unreasonable length" exception while starting a server (Skye W-M via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1420540 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit ebee4af106b15bb93efd391200d13bf183edfc5b
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Tue Dec 11 08:19:42 2012 +0000
+
+    ZOOKEEPER-1596. Zab1_0Test should ensure that the file is closed (Enis Soztutar via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1420030 13f79535-47bb-0310-9956-ffa450edef68
+    
+    Conflicts:
+    	CHANGES.txt
+
+commit 8b5864f3efe4e0848ebc83f6abd9a86accb5bd8b
+Author: Hongchao Deng <hdeng@cloudera.com>
+Date:   Tue Sep 9 13:20:05 2014 -0700
+
+    Revert "ZOOKEEPER-1811. The ZooKeeperSaslClient service name principal is hardcoded to "zookeeper" (Harsh J via phunt)"
+    
+    This reverts commit fc459d269159b4a45edbfcad3acf4d5e5253439f.
+
+commit a6cb8b1fa3292401c72cc70c36500e5f0a3f9b92
+Author: Sean Mackrory <sean@cloudera.com>
+Date:   Fri Aug 8 08:42:06 2014 -0600
+
+    CLOUDERA-BUILD. Updating ZooKeeper POM to match upstream dependencies
+
+commit 458802f91be80b753a04ef30e7d47f5cf3496424
+Author: Jenkins slave <kitchen-build@cloudera.com>
+Date:   Mon Jun 9 10:57:31 2014 -0700
+
+    Preparing for CDH5.2.0 development
+
+commit e0d663f877deada34e4ff4c007820151ae267cd9
+Author: Jenkins slave <kitchen-build@cloudera.com>
+Date:   Mon Mar 3 11:02:39 2014 -0800
+
+    Preparing for CDH5.1.0 development
+
+commit fc459d269159b4a45edbfcad3acf4d5e5253439f
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Mon Feb 10 21:26:54 2014 +0000
+
+    ZOOKEEPER-1811. The ZooKeeperSaslClient service name principal is hardcoded to "zookeeper" (Harsh J via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1566749 13f79535-47bb-0310-9956-ffa450edef68
+    (cherry picked from commit 6ef87886b5e4ca0e946bd8f35bd347c95c62f914)
+
+commit 61840166792ed0b35820d7a642ac02bf8c60d642
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Mon Feb 10 20:52:25 2014 +0000
+
+    ZOOKEEPER-1573. Unable to load database due to missing parent node (Vinayakumar B via phunt, fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1566740 13f79535-47bb-0310-9956-ffa450edef68
+    (cherry picked from commit cc1a34878ff84edc79dd41bac28fe34594b5ebb6)
+
+commit 5ce6f5e2f579860ff49f506020055b23e014c612
+Author: Patrick Hunt <phunt@cloudera.com>
+Date:   Wed Dec 11 23:01:57 2013 -0800
+
+    CLOUDERA-BUILD. Harmonize slf4j version to 1.7.5
+
+commit d0e7d6b39ab1a7b34256b51650a82bede03680cf
+Author: Mahadev Konar <mahadev@apache.org>
+Date:   Fri Sep 27 23:25:51 2013 +0000
+
+    ZOOKEEPER-1696. Fail to run zookeeper client on Weblogic application server. (Jeffrey Zhong via mahade
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1527130 13f79535-47bb-0310-9956-ffa450edef68
+    (cherry picked from commit f2387352b32c824b3a4d60c0ca2ea02d88ba5286)
+
+commit 874e5a8596a20e822fe99b2b2c712e15c998f88a
+Author: Robert Kanter <rkanter@cloudera.com>
+Date:   Mon Sep 23 16:37:48 2013 -0700
+
+    CLOUDERA-BUILD. Targeting Java 6 by default (CDH-14356)
+
+commit cae844e230fc3ad41bd8fdf629132d89ac681616
+Author: Robert Kanter <rkanter@cloudera.com>
+Date:   Thu Sep 19 18:24:43 2013 -0700
+
+    CLOUDERA-BUILD. Targeting Java 7 by default (CDH-14356)
+
+commit 1a62c561841e9788dc072f2f4df8ae622d63ef23
+Author: Andrew Bayer <andrew@cloudera.com>
+Date:   Tue Jul 9 11:49:48 2013 -0700
+
+    CLOUDERA-BUILD. Use JDK7.
+
+commit c3ed20fdbcfe92cf648197e9c2397527287782c4
+Author: Andrew Bayer <andrew@cloudera.com>
+Date:   Wed Jun 12 16:47:54 2013 -0700
+
+    Preparing for CDH5.0.0 development
+
+commit e5eacafaa3ab26ca3297bf01ceb82e49b71e0586
+Author: Jenkins slave <kitchen-build@cloudera.com>
+Date:   Tue May 28 10:34:37 2013 -0700
+
+    Preparing for CDH4.4.0 development
+
+commit 5cf7f1b26ea36d939bd4b6da66bc53495a918d8e
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Sat May 11 13:32:38 2013 +0000
+
+    ZOOKEEPER-1697:  large snapshots can cause continuous quorum failure (phunt via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1481322 13f79535-47bb-0310-9956-ffa450edef68
+    (cherry picked from commit 45419af19f9425710cb0e80cd5aee464ae500666)
+
+commit bf91b205da2a01ba67042c23df1d5a5b7aeca487
+Author: Flavio Paiva Junqueira <fpj@apache.org>
+Date:   Fri Jan 18 14:28:48 2013 +0000
+
+    ZOOKEEPER-1324. Remove Duplicate NEWLEADER packets from the Leader to the Follower. (thawan, fpj via fpj)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1435159 13f79535-47bb-0310-9956-ffa450edef68
+    (cherry picked from commit ba00d830a543dc35e2b31914e3cf56e2a5a6dd54)
+
+commit cf6a1873461c847e85db837d2b27a42d3c72b194
+Author: Gregory Chanan <gchanan@cloudera.com>
+Date:   Fri Apr 19 16:33:02 2013 -0700
+
+    CDH-11655: Zookeeper - Need capability to specify the target bytecode to the compiler JDK1.7.
+
+commit 5a658590d360e72346e6daf03809ce504701a642
+Author: Gregory Chanan <gchanan@cloudera.com>
+Date:   Fri Mar 22 17:17:35 2013 -0700
+
+    CDH-11163: Add JDK enforcement check to ZK build.xml
+
+commit 7a6aead7a48ed4729754eba72ffc7100843e4a7a
+Author: Jenkins slave <kitchen-build@cloudera.com>
+Date:   Wed Jan 30 10:29:09 2013 -0800
+
+    Preparing for CDH4.3.0 development
+
+commit 684dfe2418bf0eb385dea031a57eb428f789bcb8
+Author: Patrick D. Hunt <phunt@apache.org>
+Date:   Fri Jan 25 01:34:19 2013 +0000
+
+    ZOOKEEPER-1495. ZK client hangs when using a function not available on the server. (Skye W-M via phunt)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1438291 13f79535-47bb-0310-9956-ffa450edef68
+
+commit ee5f19d593882d50088d0b74d5340c423a466685
+Author: Patrick Hunt <phunt@cloudera.com>
+Date:   Wed Jan 23 11:06:51 2013 -0800
+
+    Revert "ZOOKEEPER-1465. Cluster availability following new leader election "
+    
+    This reverts commit b6b8d56214cf02821cb1c1031050fa3bd89b632b.
+    
+    Related to : CDH-9900. add a configuration option to turn off sending DIFFs to followers
+
+commit b35b23f74ca32f28ff3a9481efee9c4f0467a759
+Author: Patrick Hunt <phunt@cloudera.com>
+Date:   Wed Jan 23 11:00:38 2013 -0800
+
+    CDH-9900. add a configuration option to turn off sending DIFFs to followers
+    
+    ZooKeeper 3.4 introduced more aggressive use of DIFFs for reconnecting
+    followers. This improved performace for reconnecting followers after a
+    leader change, however it resulted in some corruption issues being
+    exposed. These corruption issues are still being addressed, as such
+    this patch introduces an option to disable the "aggressive diffing"
+    feature (now configurable and off by default).
+
+commit 0138bff8632b74872cd505a0b955ebb51043215d
+Author: Skye Wanderman-Milne <skye@cloudera.com>
+Date:   Tue Nov 27 13:02:01 2012 -0800
+
+    Updating to 3.4.5-cdh4.2.0-SNAPSHOT
+
+commit 78712192cb01266961983a2ef9587bc1f71bc746
+Author: Henry Robinson <henry@apache.org>
+Date:   Mon Sep 24 23:57:20 2012 +0000
+
+    ZOOKEEPER-1238. Linger time should be -1 for Netty sockets. (Skye W-M via henryr)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/trunk@1389656 13f79535-47bb-0310-9956-ffa450edef68
+    (cherry picked from commit 9e906c1f9dd39e595018d94e35862d73bd6e573c)
+    
+    Conflicts:
+    
+    	CHANGES.txt
+
+commit fbf73471f49e416da3c231715211be52f5e0e436
+Author: Jenkins slave <kitchen-build@cloudera.com>
+Date:   Thu Sep 6 15:39:50 2012 -0700
+
+    Preparing for CDH4.2.0 development
+
+commit c50d295c22066e95e526129dabc4f4a7da975896
+Author: Henry Robinson <henry@apache.org>
+Date:   Fri Mar 30 01:01:35 2012 +0000
+
+    ZOOKEEPER-1435 cap space usage of default log4j rolling policy (phunt via henryr)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/zookeeper/trunk@1307190 13f79535-47bb-0310-9956-ffa450edef68
+    (cherry picked from commit abc3d9dd7e1ec00fced27d4d5734cf3fd407c8bc)
+
+commit 8caf34b7593343eb18c062ffd5de00ee4bf9dae2
+Author: Jenkins slave <kitchen-build@cloudera.com>
+Date:   Thu May 31 12:04:24 2012 -0700
+
+    Updating for 4.1.0 development.
+
+commit 7ec8b57c9faaa4830d9674746c77d4663df1b69d
+Author: hudson <hudson@cloudera.com>
+Date:   Sun Apr 15 14:30:22 2012 -0700
+
+    Updating for 4.0.0 development.
+
+commit 8b5893da0cc69c07ba31ab9ee9dd1c094390954c
+Author: Henry Robinson <henry@apache.org>
+Date:   Tue Mar 6 08:20:49 2012 +0000
+
+    ZOOKEEPER-1161. Provide an option for disabling auto-creation of the data directory
+    
+    Reason: New Feature
+    Author: Patrick Hunt
+    Ref: CDH-4394
+
+commit b41afd28e59b6a3b6780e5d62732f11811eed5c9
+Author: Andrew Bayer <andrew@cloudera.com>
+Date:   Sun Feb 26 10:34:52 2012 -0800
+
+    DISTRO-301. Publish ZooKeeper test jar to Maven repository.
+
+commit 515bb763707ad7e9868ffba4851e998376dde7ec
+Author: Andrew Bayer <andrew@cloudera.com>
+Date:   Thu Feb 16 16:52:17 2012 -0800
+
+    Updating to 3.4.3-cdh4b2-SNAPSHOT.
+
+commit 2ca95f468263ee1ce40f499710ba53f40f82d1af
+Author: Roman Shaposhnik <rvs@cloudera.com>
+Date:   Tue Dec 6 14:23:05 2011 -0800
+
+    CLOUDERA-BUILD. CDH build modifications.

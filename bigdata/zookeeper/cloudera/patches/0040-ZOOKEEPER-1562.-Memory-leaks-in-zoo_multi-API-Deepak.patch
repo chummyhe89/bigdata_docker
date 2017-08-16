@@ -1,0 +1,50 @@
+From 44ddf7d2a3e6d171c3aaec85dc87a824ceeb14a4 Mon Sep 17 00:00:00 2001
+From: "Patrick D. Hunt" <phunt@apache.org>
+Date: Sun, 3 Feb 2013 06:41:11 +0000
+Subject: [PATCH 40/94] ZOOKEEPER-1562. Memory leaks in zoo_multi API (Deepak
+ Jagtap via phunt)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1441863 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt           |    6 ++++++
+ src/c/src/zookeeper.c |    4 ++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 4d2bef4..1032963 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -28,6 +28,12 @@ BUGFIXES:
+   ZOOKEEPER-1535. ZK Shell/Cli re-executes last command on exit 
+   (Edward Ribeiro via camille)
+ 
++  ZOOKEEPER-1495. ZK client hangs when using a function not available
++  on the server. (Skye W-M via phunt)
++
++  ZOOKEEPER-1562. Memory leaks in zoo_multi API
++  (Deepak Jagtap via phunt)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/c/src/zookeeper.c b/src/c/src/zookeeper.c
+index de58c62..758e49b 100644
+--- a/src/c/src/zookeeper.c
++++ b/src/c/src/zookeeper.c
+@@ -1979,6 +1979,10 @@ static int deserialize_multi(int xid, completion_list_t *cptr, struct iarchive *
+ 
+         deserialize_response(entry->c.type, xid, mhdr.type == -1, mhdr.err, entry, ia);
+         deserialize_MultiHeader(ia, "multiheader", &mhdr);
++        //While deserializing the response we must destroy completion entry for each operation in 
++        //the zoo_multi transaction. Otherwise this results in memory leak when client invokes zoo_multi
++        //operation.
++        destroy_completion_entry(entry);
+     }
+ 
+     return rc;
+-- 
+1.7.9.5
+

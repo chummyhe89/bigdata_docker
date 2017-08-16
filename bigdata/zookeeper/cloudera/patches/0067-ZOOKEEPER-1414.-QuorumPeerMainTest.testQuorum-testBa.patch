@@ -1,0 +1,60 @@
+From 02b0c95b40c29d1f1f4f0fa0cf062e4ff456deb7 Mon Sep 17 00:00:00 2001
+From: Michi Mutsuzaki <michim@apache.org>
+Date: Thu, 9 Jan 2014 19:22:57 +0000
+Subject: [PATCH 67/94] ZOOKEEPER-1414. QuorumPeerMainTest.testQuorum,
+ testBadPackets are failing intermittently (Rakesh R
+ via michim)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1556926 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt                                        |    2 ++
+ .../server/quorum/QuorumPeerMainTest.java          |    6 +++---
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 427bf0c..3fdfb2e 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -101,6 +101,8 @@ BUGFIXES:
+   ZOOKEEPER-1852. ServerCnxnFactory instance is not properly
+   cleanedup (Rakesh R via fpj)
+ 
++  ZOOKEEPER-1414. QuorumPeerMainTest.testQuorum, testBadPackets are failing
++  intermittently (Rakesh R via michim)
+ 
+ IMPROVEMENTS:
+ 
+diff --git a/src/java/test/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java b/src/java/test/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java
+index 24cd060..9e6e640 100644
+--- a/src/java/test/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java
++++ b/src/java/test/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java
+@@ -87,7 +87,7 @@ public class QuorumPeerMainTest extends QuorumPeerTestBase {
+ 
+         ZooKeeper zk = new ZooKeeper("127.0.0.1:" + CLIENT_PORT_QP1,
+                 ClientBase.CONNECTION_TIMEOUT, this);
+-
++        waitForOne(zk, States.CONNECTED);
+         zk.create("/foo_q1", "foobar1".getBytes(), Ids.OPEN_ACL_UNSAFE,
+                 CreateMode.PERSISTENT);
+         Assert.assertEquals(new String(zk.getData("/foo_q1", null, null)), "foobar1");
+@@ -95,7 +95,7 @@ public class QuorumPeerMainTest extends QuorumPeerTestBase {
+ 
+         zk = new ZooKeeper("127.0.0.1:" + CLIENT_PORT_QP2,
+                 ClientBase.CONNECTION_TIMEOUT, this);
+-
++        waitForOne(zk, States.CONNECTED);
+         zk.create("/foo_q2", "foobar2".getBytes(), Ids.OPEN_ACL_UNSAFE,
+                 CreateMode.PERSISTENT);
+         Assert.assertEquals(new String(zk.getData("/foo_q2", null, null)), "foobar2");
+@@ -567,7 +567,7 @@ public class QuorumPeerMainTest extends QuorumPeerTestBase {
+         
+         ZooKeeper zk = new ZooKeeper("127.0.0.1:" + CLIENT_PORT_QP1,
+                 ClientBase.CONNECTION_TIMEOUT, this);
+-
++        waitForOne(zk, States.CONNECTED);
+         zk.create("/foo_q1", "foobar1".getBytes(), Ids.OPEN_ACL_UNSAFE,
+                 CreateMode.PERSISTENT);
+         Assert.assertEquals(new String(zk.getData("/foo_q1", null, null)), "foobar1");
+-- 
+1.7.9.5
+

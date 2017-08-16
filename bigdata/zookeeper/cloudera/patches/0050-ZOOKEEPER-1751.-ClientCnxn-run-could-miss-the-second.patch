@@ -1,0 +1,61 @@
+From 02fc15de3f395a43cd82310939e4825487d4650f Mon Sep 17 00:00:00 2001
+From: Mahadev Konar <mahadev@apache.org>
+Date: Wed, 18 Sep 2013 02:06:28 +0000
+Subject: [PATCH 50/94] ZOOKEEPER-1751. ClientCnxn#run could miss the second
+ ping or connection get dropped before a ping.
+ (Jeffrey Zhong  via mahadev)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1524274 13f79535-47bb-0310-9956-ffa450edef68
+
+Conflicts:
+	CHANGES.txt
+---
+ CHANGES.txt                                        |    3 +++
+ src/java/main/org/apache/zookeeper/ClientCnxn.java |   10 +++++++---
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index ffa81a2..fa09fa3 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -59,6 +59,9 @@ BUGFIXES:
+   ZOOKEEPER-1750. Race condition producing NPE in NIOServerCnxn.toString
+   (Rakesh R via michim)
+ 
++  ZOOKEEPER-1751. ClientCnxn#run could miss the second ping or connection get
++  dropped before a ping. (Jeffrey Zhong  via mahadev)
++
+ IMPROVEMENTS:
+ 
+ 
+diff --git a/src/java/main/org/apache/zookeeper/ClientCnxn.java b/src/java/main/org/apache/zookeeper/ClientCnxn.java
+index 27547b4..43da699 100644
+--- a/src/java/main/org/apache/zookeeper/ClientCnxn.java
++++ b/src/java/main/org/apache/zookeeper/ClientCnxn.java
+@@ -976,6 +976,7 @@ public class ClientCnxn {
+             clientCnxnSocket.updateLastSendAndHeard();
+             int to;
+             long lastPingRwServer = System.currentTimeMillis();
++            final int MAX_SEND_PING_INTERVAL = 10000; //10 seconds
+             while (state.isAlive()) {
+                 try {
+                     if (!clientCnxnSocket.isConnected()) {
+@@ -1039,9 +1040,12 @@ public class ClientCnxn {
+                                         + Long.toHexString(sessionId));
+                     }
+                     if (state.isConnected()) {
+-                        int timeToNextPing = readTimeout / 2
+-                                - clientCnxnSocket.getIdleSend();
+-                        if (timeToNextPing <= 0) {
++                    	//1000(1 second) is to prevent race condition missing to send the second ping
++                    	//also make sure not to send too many pings when readTimeout is small 
++                        int timeToNextPing = readTimeout / 2 - clientCnxnSocket.getIdleSend() - 
++                        		((clientCnxnSocket.getIdleSend() > 1000) ? 1000 : 0);
++                        //send a ping request either time is due or no packet sent out within MAX_SEND_PING_INTERVAL
++                        if (timeToNextPing <= 0 || clientCnxnSocket.getIdleSend() > MAX_SEND_PING_INTERVAL) {
+                             sendPing();
+                             clientCnxnSocket.updateLastSend();
+                         } else {
+-- 
+1.7.9.5
+

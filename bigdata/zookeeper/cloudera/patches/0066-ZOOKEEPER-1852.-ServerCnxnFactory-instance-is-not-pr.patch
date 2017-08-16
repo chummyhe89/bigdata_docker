@@ -1,0 +1,49 @@
+From 11bc0fc014e92415eddb71cb9ad56b069c04c0bd Mon Sep 17 00:00:00 2001
+From: Flavio Paiva Junqueira <fpj@apache.org>
+Date: Fri, 3 Jan 2014 00:44:27 +0000
+Subject: [PATCH 66/94] ZOOKEEPER-1852. ServerCnxnFactory instance is not
+ properly cleanedup (Rakesh R via fpj)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1554983 13f79535-47bb-0310-9956-ffa450edef68
+---
+ .../test/org/apache/zookeeper/test/ClientBase.java |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/src/java/test/org/apache/zookeeper/test/ClientBase.java b/src/java/test/org/apache/zookeeper/test/ClientBase.java
+index 0672e57..fdd037a 100644
+--- a/src/java/test/org/apache/zookeeper/test/ClientBase.java
++++ b/src/java/test/org/apache/zookeeper/test/ClientBase.java
+@@ -327,6 +327,9 @@ public abstract class ClientBase extends ZKTestCase {
+         return Integer.parseInt(portstr);
+     }
+ 
++    /**
++     * Starting the given server instance
++     */
+     public static void startServerInstance(File dataDir,
+             ServerCnxnFactory factory, String hostPort) throws IOException,
+             InterruptedException {
+@@ -338,6 +341,20 @@ public abstract class ClientBase extends ZKTestCase {
+                 "127.0.0.1:" + port, CONNECTION_TIMEOUT));
+     }
+ 
++    /**
++     * This method instantiates a new server. Starting of the server
++     * instance has been moved to a separate method
++     * {@link ClientBase#startServerInstance(File, ServerCnxnFactory, String)}.
++     * Because any exception on starting the server would leave the server
++     * running and the caller would not be able to shutdown the instance. This
++     * may affect other test cases.
++     * 
++     * @return newly created server instance
++     * 
++     * @see <a
++     *      href="https://issues.apache.org/jira/browse/ZOOKEEPER-1852">ZOOKEEPER-1852</a>
++     *      for more information.
++     */
+     public static ServerCnxnFactory createNewServerInstance(
+             ServerCnxnFactory factory, String hostPort, int maxCnxns)
+             throws IOException, InterruptedException {
+-- 
+1.7.9.5
+

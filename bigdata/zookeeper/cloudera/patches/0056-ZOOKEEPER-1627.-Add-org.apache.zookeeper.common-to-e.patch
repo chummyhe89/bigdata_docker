@@ -1,0 +1,52 @@
+From 738d52aef4dc49c10bcbadf0920315ee012af98d Mon Sep 17 00:00:00 2001
+From: "Patrick D. Hunt" <phunt@apache.org>
+Date: Wed, 9 Oct 2013 22:14:08 +0000
+Subject: [PATCH 56/94] ZOOKEEPER-1627. Add org.apache.zookeeper.common to
+ exported packages in OSGi MANIFEST (Arnoud
+ Glimmerveen via phunt)
+
+git-svn-id: https://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4@1530810 13f79535-47bb-0310-9956-ffa450edef68
+---
+ CHANGES.txt |    3 +++
+ build.xml   |    4 ++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/CHANGES.txt b/CHANGES.txt
+index 75b8865..55c7468 100644
+--- a/CHANGES.txt
++++ b/CHANGES.txt
+@@ -79,6 +79,9 @@ BUGFIXES:
+ IMPROVEMENTS:
+ 
+ 
++  ZOOKEEPER-1627. Add org.apache.zookeeper.common to exported packages
++  in OSGi MANIFEST (Arnoud Glimmerveen via phunt)
++
+ Release 3.4.5 - 2012-09-30
+ 
+ Backward compatible changes:
+diff --git a/build.xml b/build.xml
+index 68a76c2..d66a8fb 100644
+--- a/build.xml
++++ b/build.xml
+@@ -555,7 +555,7 @@
+                 <attribute name="Bundle-License" value="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+                 <attribute name="Bundle-DocURL" value="http://hadoop.apache.org/zookeeper"/>
+                 <attribute name="Import-Package" value='javax.management;resolution:=optional,javax.security.auth.callback,javax.security.auth.login,javax.security.sasl,org.slf4j;version="[1.6,2)",org.jboss.netty.buffer;resolution:=optional;version="[3.2,4)",org.jboss.netty.channel;resolution:=optional;version="[3.2,4)",org.jboss.netty.channel.group;resolution:=optional;version="[3.2,4)",org.jboss.netty.channel.socket.nio;resolution:=optional;version="[3.2,4)",org.osgi.framework;resolution:=optional;version="[1.5,2)",org.osgi.util.tracker;resolution:=optional;version="[1.4,2)"'/>
+-                <attribute name="Export-Package" value='org.apache.zookeeper;version="${version}",org.apache.zookeeper.client;version="${version}",org.apache.zookeeper.data;version="${version}",org.apache.zookeeper.version;version="${version}",org.apache.zookeeper.server;version="${version}",org.apache.zookeeper.server.auth;version="${version}",org.apache.zookeeper.server.persistence;version="${version}",org.apache.zookeeper.server.quorum;version="${version}"'/>
++                <attribute name="Export-Package" value='org.apache.zookeeper;version="${version}",org.apache.zookeeper.client;version="${version}",org.apache.zookeeper.data;version="${version}",org.apache.zookeeper.version;version="${version}",org.apache.zookeeper.server;version="${version}",org.apache.zookeeper.server.auth;version="${version}",org.apache.zookeeper.server.persistence;version="${version}",org.apache.zookeeper.server.quorum;version="${version}",org.apache.zookeeper.common;version="${version}"'/>
+             </manifest>
+         </jar>
+     </target>
+@@ -596,7 +596,7 @@
+                 <attribute name="Bundle-License" value="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+                 <attribute name="Bundle-DocURL" value="http://hadoop.apache.org/zookeeper"/>
+                 <attribute name="Import-Package" value='javax.management;resolution:=optional,javax.security.auth.callback,javax.security.auth.login,javax.security.sasl,org.slf4j;version="[1.6,2)",org.jboss.netty.buffer;resolution:=optional;version="[3.2,4)",org.jboss.netty.channel;resolution:=optional;version="[3.2,4)",org.jboss.netty.channel.group;resolution:=optional;version="[3.2,4)",org.jboss.netty.channel.socket.nio;resolution:=optional;version="[3.2,4)",org.osgi.framework;resolution:=optional;version="[1.5,2)",org.osgi.util.tracker;resolution:=optional;version="[1.4,2)"'/>
+-                <attribute name="Export-Package" value='org.apache.zookeeper;version="${version}",org.apache.zookeeper.client;version="${version}",org.apache.zookeeper.data;version="${version}",org.apache.zookeeper.version;version="${version}",org.apache.zookeeper.server;version="${version}",org.apache.zookeeper.server.auth;version="${version}",org.apache.zookeeper.server.persistence;version="${version}",org.apache.zookeeper.server.quorum;version="${version}"'/>
++                <attribute name="Export-Package" value='org.apache.zookeeper;version="${version}",org.apache.zookeeper.client;version="${version}",org.apache.zookeeper.data;version="${version}",org.apache.zookeeper.version;version="${version}",org.apache.zookeeper.server;version="${version}",org.apache.zookeeper.server.auth;version="${version}",org.apache.zookeeper.server.persistence;version="${version}",org.apache.zookeeper.server.quorum;version="${version}",org.apache.zookeeper.common;version="${version}"'/>
+             </manifest>
+         </jar>
+     </target>
+-- 
+1.7.9.5
+
