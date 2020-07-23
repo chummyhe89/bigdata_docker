@@ -23,7 +23,7 @@ import time
 from zkrest import ZooKeeper
 
 class Agent(threading.Thread):
-    """ A basic agent that wants to become a master and exit """
+    """ A basic agent that wants to become a main and exit """
 
     root = '/election'
 
@@ -44,7 +44,7 @@ class Agent(threading.Thread):
             while True:
                 children = sorted([el['path'] \
                     for el in self.zk.get_children(self.root)])
-                master, previous = children[0], None
+                main, previous = children[0], None
                 try:
                     index = children.index(self.me)
                     if index != 0:
@@ -53,28 +53,28 @@ class Agent(threading.Thread):
                     break
 
                 if previous is None:
-                    self.do_master_work()
+                    self.do_main_work()
                     # and don't forget to send heartbeat messages
                     break
                 else:
-                    # do slave work in another thread
+                    # do subordinate work in another thread
                     pass
                
-                # wait for the previous agent or current master to exit / finish
-                while self.zk.exists(previous) or self.zk.exists(master):
+                # wait for the previous agent or current main to exit / finish
+                while self.zk.exists(previous) or self.zk.exists(main):
                     time.sleep(0.5)
                     self.zk.heartbeat()
 
-                # TODO signal the slave thread to exit and wait for it
+                # TODO signal the subordinate thread to exit and wait for it
                 # and rerun the election loop
 
-    def do_master_work(self):
-        print "#%s: I'm the master: %s" % (self.id, self.me) 
+    def do_main_work(self):
+        print "#%s: I'm the main: %s" % (self.id, self.me) 
             
 def main():
     zk = ZooKeeper()
 
-    # create the root node used for master election
+    # create the root node used for main election
     if not zk.exists('/election'):
         zk.create('/election')
 
